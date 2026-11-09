@@ -1,0 +1,23 @@
+{
+  "name": "sssok-photobooth-demo",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "qrcode.react": "^4.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.109.2",
+    "webpack-cli": "^7.2.2",
+    "babel-loader": "^10.1.1",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
+    "@babel/preset-typescript": "^7.29.7",
+    "css-loader": "^7.1.4",
+    "style-loader": "^4.0.0",
+    "html-webpack-plugin": "^5.6.8"
+  }
+}

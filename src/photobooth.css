@@ -163,8 +163,8 @@ summary:focus-visible {
   font-size: 12px;
 }
 .booth-poster {
-  background: #feeadf;
-  border-radius: 32px;
+  background: #fff;
+  border-radius: 24px;
   min-height: 450px;
   display: flex;
   align-items: center;
@@ -172,52 +172,10 @@ summary:focus-visible {
   flex-direction: column;
   gap: 22px;
 }
-.poster-strip {
-  width: 146px;
-  background: white;
-  padding: 12px;
-  box-shadow: 0 10px 30px #7b3b201a;
-  transform: rotate(7deg);
-}
-.poster-strip > div {
-  height: 65px;
-  margin-bottom: 7px;
-  background: #f4f2ee;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-}
-.poster-strip > div:nth-child(2) {
-  background: #fbd4bc;
-}
-.poster-strip > div:nth-child(3) {
-  background: #f8b894;
-}
-.poster-strip > div:nth-child(4) {
-  background: #f66d3b;
-}
-.poster-strip span {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  background: #ffffffb0;
-  display: grid;
-  place-items: center;
-  color: #b44620;
-  font-size: 24px;
-  font-weight: 800;
-  transform: rotate(-7deg);
-}
-.poster-strip strong {
-  display: block;
-  font-size: 10px;
-  text-align: center;
-  padding: 8px 0;
-  color: #4a4843;
-}
-.poster-note {
-  font-size: 12px;
-  color: #a95b3e;
+.booth-poster > img {
+  width: 240px;
+  height: 280px;
+  object-fit: contain;
 }
 .booth-work {
   display: grid;
@@ -389,11 +347,12 @@ summary:focus-visible {
 }
 .booth .frame-option {
   font-size: 13px;
-  border: 2px solid #e4e2dd;
+  border: 1px solid #e4e2dd;
 }
 .booth .selected-frame {
-  outline: 2px solid #f66d3b;
-  outline-offset: 3px;
+  border-color: #f66d3b;
+  color: #f66d3b;
+  background: #fff;
 }
 .booth details {
   border-top: 1px solid #e4e2dd;
@@ -575,8 +534,7 @@ summary:focus-visible {
     width: 100%;
   }
   .booth-poster {
-    min-height: 350px;
-    order: -1;
+    min-height: 200px;
   }
   .poster-strip {
     width: 120px;

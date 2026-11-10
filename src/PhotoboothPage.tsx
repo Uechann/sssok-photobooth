@@ -1,3 +1,4 @@
+import mascotWave from "./assets/mascot-wave.png";
 import {
   joinRoom,
   createAnonymous,
@@ -326,22 +327,7 @@ export const PhotoboothPage = () => {
             <small>카메라 권한을 허용해 주세요</small>
           </div>
           <div className="booth-poster" aria-hidden="true">
-            <div className="poster-strip">
-              <div>
-                <span>쏙</span>
-              </div>
-              <div>
-                <span>우리</span>
-              </div>
-              <div>
-                <span>함께</span>
-              </div>
-              <div>
-                <span>오늘</span>
-              </div>
-              <strong>우리의 오늘을, 쏙.</strong>
-            </div>
-            <span className="poster-note">네 장의 순간, 하나의 추억</span>
+            <img src={mascotWave} alt="" />
           </div>
         </section>
       ) : null}
@@ -482,7 +468,7 @@ export const PhotoboothPage = () => {
                   className={
                     frame === f ? "frame-option selected-frame" : "frame-option"
                   }
-                  style={{ background: f.color, color: f.ink }}
+
                   onClick={() => setFrame(f)}
                 >
                   {f.name}

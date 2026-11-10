@@ -2,7 +2,8 @@
 
 아이패드 촬영 → 네컷 합성 → 기존 쏙 서버에 원본과 네컷 저장 → QR로 쏙 사진방 공유.
 
-- 서비스: https://sssok-photobooth-demo-uechann.cab0703607.chatgpt.site
+- 서비스 (main 자동 배포): https://sssok-photobooth.vercel.app
+- 기존 Sites 주소 (별도 수동 배포): https://sssok-photobooth-demo-uechann.cab0703607.chatgpt.site
 - 운영 API: https://api.ssssok.com/api/v1
 - QR 입장: https://www.ssssok.com/join/{방코드}
 

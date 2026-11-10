@@ -1,4 +1,5 @@
 import { encodeJpeg } from "./imageEncoding";
+import oldTemplate from "./assets/sssok-frame.png";
 import template from "./assets/wooteco-frame.png";
 export const TEMPLATE_SIZE = { width: 1200, height: 1800 };
 // Printed order on the supplied frame: right top, right bottom, left top, left bottom.
@@ -8,7 +9,32 @@ export const TEMPLATE_SLOTS = [
   { x: 50, y: 424, w: 506, h: 614 },
   { x: 50, y: 1065, w: 506, h: 614 },
 ];
-export const frames = [{ name: "우테코 8기", template }];
+export interface Frame {
+  name: string;
+  color: string;
+  ink: string;
+  template?: string;
+  logo?: string;
+}
+export const frames: Frame[] = [
+  { name: "우테코 8기", template, color: "#fff", ink: "#1a1a1a" },
+  { name: "기본", color: "#fff", ink: "#1a1a1a" },
+  { name: "우아한테크코스", color: "#c5f467", ink: "#18391f" },
+  { name: "sssOK", template: oldTemplate, color: "#ff9654", ink: "#281a14" },
+];
+export function frameLayout(frame: Frame) {
+  return frame.template
+    ? { size: TEMPLATE_SIZE, slots: TEMPLATE_SLOTS }
+    : {
+        size: { width: 720, height: 2180 },
+        slots: Array.from({ length: 4 }, (_, i) => ({
+          x: 40,
+          y: 40 + i * 480,
+          w: 640,
+          h: 460,
+        })),
+      };
+}
 export const loadImage = (src: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
@@ -17,9 +43,11 @@ export const loadImage = (src: string): Promise<HTMLImageElement> =>
     image.src = src;
   });
 export { encodeJpeg as canvasBlob } from "./imageEncoding";
-let overlay: Promise<HTMLCanvasElement> | undefined;
-function frameOverlay() {
-  return (overlay ??= loadImage(template)
+const overlays = new Map<string, Promise<HTMLCanvasElement>>();
+function frameOverlay(source: string) {
+  const cached = overlays.get(source);
+  if (cached) return cached;
+  const result = loadImage(source)
     .then((image) => {
       const canvas = document.createElement("canvas");
       Object.assign(canvas, TEMPLATE_SIZE);
@@ -52,27 +80,30 @@ function frameOverlay() {
       return canvas;
     })
     .catch((error) => {
-      overlay = undefined;
+      overlays.delete(source);
       throw error;
-    }));
+    });
+  overlays.set(source, result);
+  return result;
 }
 export async function compose(
   sources: (string | undefined)[],
-  _frame = frames[0],
+  frame: Frame = frames[0],
 ): Promise<Blob> {
   if (sources.length !== 4) throw new Error("네 장을 선택해 주세요.");
   const canvas = document.createElement("canvas");
-  Object.assign(canvas, TEMPLATE_SIZE);
+  const layout = frameLayout(frame);
+  Object.assign(canvas, layout.size);
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("이미지를 만들 수 없어요.");
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = frame.color;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const images = await Promise.all(
     sources.map((src) => (src ? loadImage(src) : undefined)),
   );
   images.forEach((image, i) => {
     if (!image) return;
-    const slot = TEMPLATE_SLOTS[i];
+    const slot = layout.slots[i];
     // Contain preserves the whole face/photo; the white frame fills any spare space.
     const ratio = Math.min(slot.w / image.width, slot.h / image.height);
     const w = image.width * ratio,
@@ -85,6 +116,25 @@ export async function compose(
       h,
     );
   });
-  ctx.drawImage(await frameOverlay(), 0, 0);
+  if (frame.template) ctx.drawImage(await frameOverlay(frame.template), 0, 0);
+  else {
+    ctx.fillStyle = frame.ink;
+    ctx.textAlign = "center";
+    ctx.font = "bold 36px sans-serif";
+    ctx.fillText(frame.name, 360, 2020, 600);
+    ctx.font = "18px sans-serif";
+    ctx.fillText("WOOWACOURSE 8TH · DEMO DAY", 360, 2060);
+    if (frame.logo) {
+      const logo = await loadImage(frame.logo);
+      const ratio = Math.min(160 / logo.width, 70 / logo.height);
+      ctx.drawImage(
+        logo,
+        (720 - logo.width * ratio) / 2,
+        2090,
+        logo.width * ratio,
+        logo.height * ratio,
+      );
+    }
+  }
   return encodeJpeg(canvas);
 }

@@ -26,8 +26,8 @@ import {
   compose,
   frames,
   loadImage,
-  TEMPLATE_SLOTS,
-  TEMPLATE_SIZE,
+  frameLayout,
+  type Frame,
 } from "./compose";
 import "./photobooth.css";
 
@@ -42,7 +42,13 @@ export const PhotoboothPage = () => {
   const [choosing, setChoosing] = useState(true);
   const [cameraReady, setCameraReady] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const frame = frames[0];
+  const [frame, setFrame] = useState<Frame>(frames[0]);
+  const [custom, setCustom] = useState<Frame>({
+    name: "우리 팀",
+    color: "#ffd4df",
+    ink: "#29232c",
+  });
+  const layout = frameLayout(frame);
   const [preview, setPreview] = useState("");
   const [uploadStarted, setUploadStarted] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -498,12 +504,17 @@ export const PhotoboothPage = () => {
               바꿀 자리를 누른 뒤, 아래에서 사진을 골라 주세요.
             </p>
             <div className="selection-stage">
-              <div className="live-frame">
+              <div
+                className="live-frame"
+                style={{
+                  aspectRatio: `${layout.size.width}/${layout.size.height}`,
+                }}
+              >
                 <img
                   src={preview || frame.template}
                   alt="선택한 사진이 담긴 우테코 네컷"
                 />
-                {TEMPLATE_SLOTS.map((slot, i) => (
+                {layout.slots.map((slot, i) => (
                   <button
                     key={i}
                     className={`frame-slot ${activeSlot === i ? "active-slot" : ""}`}
@@ -516,10 +527,10 @@ export const PhotoboothPage = () => {
                         setFocusedPhoto(selected[i]);
                     }}
                     style={{
-                      left: `${(slot.x / TEMPLATE_SIZE.width) * 100}%`,
-                      top: `${(slot.y / TEMPLATE_SIZE.height) * 100}%`,
-                      width: `${(slot.w / TEMPLATE_SIZE.width) * 100}%`,
-                      height: `${(slot.h / TEMPLATE_SIZE.height) * 100}%`,
+                      left: `${(slot.x / layout.size.width) * 100}%`,
+                      top: `${(slot.y / layout.size.height) * 100}%`,
+                      width: `${(slot.w / layout.size.width) * 100}%`,
+                      height: `${(slot.h / layout.size.height) * 100}%`,
                     }}
                   >
                     <span>
@@ -585,7 +596,7 @@ export const PhotoboothPage = () => {
                 disabled={selected.length !== 4}
                 onClick={() => setChoosing(false)}
               >
-                완성 사진 확인 →
+                프레임 고르기 →
               </button>
             </div>
           </section>
@@ -600,11 +611,88 @@ export const PhotoboothPage = () => {
                 사진 바꾸기
               </button>
             </div>
+            <div className="restored-frames">
+              <h2>프레임 선택</h2>
+              <div className="booth-actions">
+                {[...frames, custom].map((f, i) => (
+                  <button
+                    disabled={busy || uploadStarted}
+                    key={i}
+                    aria-pressed={frame === f}
+                    className={
+                      frame === f
+                        ? "frame-option selected-frame"
+                        : "frame-option"
+                    }
+
+                    onClick={() => setFrame(f)}
+                  >
+                    {f.name}
+                  </button>
+                ))}
+              </div>
+              <details>
+                <summary>팀 프레임 꾸미기</summary>
+                <fieldset disabled={busy || uploadStarted}>
+                  <label>
+                    팀 이름
+                    <input
+                      maxLength={20}
+                      value={custom.name}
+                      onChange={(e) => {
+                        const f = { ...custom, name: e.target.value };
+                        setCustom(f);
+                        setFrame(f);
+                      }}
+                    />
+                  </label>
+                  <label>
+                    프레임 색
+                    <input
+                      type="color"
+                      value={custom.color}
+                      onChange={(e) => {
+                        const f = { ...custom, color: e.target.value };
+                        setCustom(f);
+                        setFrame(f);
+                      }}
+                    />
+                  </label>
+                  <label>
+                    글자 색
+                    <input
+                      type="color"
+                      value={custom.ink}
+                      onChange={(e) => {
+                        const f = { ...custom, ink: e.target.value };
+                        setCustom(f);
+                        setFrame(f);
+                      }}
+                    />
+                  </label>
+                  <label>
+                    로고 / 캐릭터
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const f = { ...custom, logo: objectUrl(file) };
+                          setCustom(f);
+                          setFrame(f);
+                        }
+                      }}
+                    />
+                  </label>
+                </fieldset>
+              </details>
+            </div>
             <aside className="booth-preview">
               {preview && selected.length === 4 ? (
                 <img src={preview} alt="합성된 인생네컷 미리보기" />
               ) : (
-                <p>사진 네 장을 선택해 주세요.</p>
+                <p>{selected.length === 4 ? "프레임을 적용하고 있어요…" : "사진 네 장을 선택해 주세요."}</p>
               )}
               {preview && selected.length === 4 && (
                 <a

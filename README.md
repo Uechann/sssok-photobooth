@@ -33,7 +33,7 @@ git commit -m "feat: 프레임 선택 개선"
 git push -u origin feature/frame-picker
 ```
 
-main 대상 PR로 리뷰합니다. 직접 push하려면 저장소 소유자가 팀원을 collaborator로 추가해야 합니다.
+이 프로토타입 저장소는 main 직접 push를 허용합니다. PR은 선택이며, main push는 Vercel Git 연동 후 자동 배포됩니다. 원본 쏙 저장소의 PR 규칙은 변경하지 않습니다. 직접 push하려면 저장소 소유자가 팀원을 collaborator로 추가해야 합니다.
 권한이 없으면 fork에서 PR을 보낼 수 있습니다. CI는 타입 검사·테스트·빌드와 배포 아티팩트를 생성합니다.
 
 ## Vercel 자동 배포

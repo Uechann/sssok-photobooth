@@ -1,6 +1,7 @@
 # 쏙 포토부스 협업 규칙
 - 이 저장소는 원본 쏙 저장소와 별도로 관리한다.
-- main 기준 feature/* 또는 fix/* 브랜치에서 작업하고 PR로 리뷰한다.
+- 이 프로토타입 저장소만 사용자 승인에 따라 main 직접 push를 허용한다. PR은 선택이다. main push는 Vercel 운영 자동 배포를 트리거한다.
+- 원본 woowacourse-teams/2026-sssOK 저장소의 브랜치·PR·승인 규칙에는 이 예외를 적용하지 않는다.
 - 사용자가 요청한 커밋·푸시만 실행한다. 에이전트 서명은 넣지 않는다.
 - 검증: npm run typecheck && npm test && npm run build.
 - API 토큰, 사진, 환경변수 파일을 커밋하지 않는다.

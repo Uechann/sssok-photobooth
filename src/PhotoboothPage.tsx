@@ -1,4 +1,4 @@
-import { joinRoom, createAnonymous, saveRoomSession, createRoom, uploadFiles, MOCK_MODE, ROUTES } from "./demo";
+import { joinRoom, createAnonymous, clearSession, createRoom, uploadFiles, SERVICE_ORIGIN, ROUTES } from "./api";
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { canvasBlob, compose, frames, type Frame } from "./compose";
@@ -22,7 +22,7 @@ export const PhotoboothPage = () => {
   const [count, setCount] = useState(0);
   const [status, setStatus] = useState("");
   const [shareUrl, setShareUrl] = useState("");
-  const shareOrigin = window.location.origin;
+  const shareOrigin = SERVICE_ORIGIN;
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
   const urls = useRef<string[]>([]);
@@ -123,7 +123,7 @@ export const PhotoboothPage = () => {
       ctx.translate(c.width, 0);
       ctx.scale(-1, 1);
       ctx.drawImage(v, 0, 0);
-      addBlob(await canvasBlob(c), `booth-${Date.now()}.jpg`);
+      addBlob(await canvasBlob(c), `booth-${crypto.randomUUID()}.jpg`);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -196,11 +196,11 @@ export const PhotoboothPage = () => {
         setStatus("사진을 담을 방을 만들고 있어요");
         const session = await createAnonymous({ nickname: "포토부스" });
         const created = await createRoom(
-          { nickname: "포토부스", name: "데모데이 네컷", uploadPolicy: "host" },
+          { nickname: "포토부스", name: photos.every(p => p.file.name.startsWith("sample-")) ? "[테스트] 포토부스" : "데모데이 네컷", uploadPolicy: "host" },
           session.accessToken,
         );
         room.current = { ...created, token: session.accessToken };
-        saveRoomSession(created.code, session);
+
       }
       await joinRoom(room.current.roomId, room.current.token, {
         code: room.current.code,
@@ -211,6 +211,7 @@ export const PhotoboothPage = () => {
         roomId: room.current.roomId,
         token: room.current.token,
         files: pending.current,
+        onProgress: (done,total) => setStatus(`${done}/${total}장 저장 완료`),
       });
       const rejectedNames = new Set(result.rejected.map((f) => f.fileName));
       pending.current = [
@@ -241,6 +242,7 @@ export const PhotoboothPage = () => {
     setPreview("");
     setError("");
     setShareUrl("");
+    clearSession();
     room.current = null;
     pending.current = null;
     setStep("welcome");
@@ -254,11 +256,6 @@ export const PhotoboothPage = () => {
         <span className="booth-badge">WOOWACOURSE 8TH · DEMO DAY</span>
         <span>오늘의 순간을 가져가세요 ↗</span>
       </header>
-      {MOCK_MODE === "full" && (
-        <p className="booth-hint">
-          공유용 프로토타입 · 사진은 현재 브라우저에서만 처리돼요. QR은 샘플 사진방으로 연결됩니다.
-        </p>
-      )}
       <div className="booth-steps">
         {["촬영하기", "네컷 꾸미기", "함께 가져가기"].map((s, i) => (
           <span
@@ -364,7 +361,7 @@ export const PhotoboothPage = () => {
                       c.width = image.width * r;
                       c.height = image.height * r;
                       c.getContext("2d")!.drawImage(image, 0, 0, c.width, c.height);
-                      addBlob(await canvasBlob(c), `import-${Date.now()}-${files.indexOf(f)}.jpg`);
+                      addBlob(await canvasBlob(c), `import-${crypto.randomUUID()}.jpg`);
                     }
                   } catch {
                     setError("읽을 수 없는 사진이 있어요. JPEG 또는 PNG로 다시 선택해 주세요.");
@@ -493,9 +490,9 @@ export const PhotoboothPage = () => {
               disabled={busy || selected.length !== 4 || !preview}
               onClick={() => void publish()}
             >
-              {busy ? status : uploadStarted ? "업로드 다시 시도" : "데모 사진방 만들기 →"}
+              {busy ? status : uploadStarted ? "업로드 다시 시도" : "쏙에 저장하고 QR 받기 →"}
             </button>
-            <small>실제 업로드 없이 공유 완료 화면을 체험해요. 네컷은 다운로드할 수 있어요.</small>
+            <small>원본 전체와 네컷을 쏙 서버에 저장합니다. 링크를 받은 사람은 사진을 볼 수 있어요.</small>
           </aside>
         </section>
       )}
@@ -508,7 +505,7 @@ export const PhotoboothPage = () => {
           </div>
           <p>
             카메라로 QR을 비추고
-            <br />샘플 사진방의 공유 흐름을 살펴보세요.
+            <br />쏙 사진방에서 원본과 네컷을 저장하세요.
           </p>
           <a href={shareUrl} target="_blank" rel="noreferrer">
             사진방 열기 ↗

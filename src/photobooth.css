@@ -896,3 +896,336 @@ summary:focus-visible {
 .capture-topbar {
   align-items: center;
 }
+
+/* Review draft: supplied artwork, one event frame, visible photo library. */
+.booth-welcome .booth-steps,
+.booth-welcome > footer {
+  display: none;
+}
+.welcome-scene {
+  max-width: 740px;
+  margin: 24px auto 32px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+.welcome-art {
+  position: relative;
+  height: min(48dvh, 500px);
+  overflow: hidden;
+  border-radius: 28px;
+  background: #36271e;
+}
+.welcome-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.welcome-art > span {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 9px 12px;
+  color: white;
+  background: #21150db3;
+  border-radius: 20px;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.welcome-copy {
+  text-align: center;
+}
+.welcome-copy .booth-eyebrow {
+  margin-bottom: 4px;
+  color: #694a36;
+}
+.booth .welcome-copy h1 {
+  font-size: 52px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.welcome-copy h1 em {
+  font-style: normal;
+  color: #f66d3b;
+}
+.welcome-copy > p:not(.booth-eyebrow) {
+  color: #695b52;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+.booth .welcome-copy > button {
+  width: 100%;
+  min-height: 64px;
+  font-size: 18px;
+}
+.booth .welcome-copy > .welcome-demo {
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  color: #8b8781;
+  margin-top: 4px;
+}
+.booth-welcome {
+  display: block;
+  min-height: 100dvh;
+  max-width: 100%;
+  padding: 0 32px;
+  background: #fffcf7;
+}
+.booth-welcome > .booth-header {
+  max-width: 920px;
+  margin: auto;
+  height: 72px;
+}
+.booth.is-choosing {
+  max-width: 1000px;
+}
+.gallery-selection {
+  gap: 12px;
+}
+.selection-guide {
+  font-size: 14px;
+  color: #736c63;
+  line-height: 1.6;
+}
+.selection-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  background: #f4f2ee;
+  border-radius: 20px;
+  padding: 18px;
+}
+.live-frame {
+  position: relative;
+  width: auto;
+  aspect-ratio: 2/3;
+  height: min(36dvh, 440px);
+  max-width: 100%;
+  margin: auto;
+  background: white;
+  box-shadow: 0 3px 14px #29201812;
+}
+.live-frame > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.booth .frame-slot {
+  position: absolute;
+  padding: 0;
+  border: 2px solid transparent;
+  background: transparent;
+  border-radius: 0;
+  min-height: 0;
+}
+.booth .frame-slot.active-slot {
+  border: 3px solid #f66d3b;
+  background: #f66d3b09;
+}
+.booth .frame-slot:disabled {
+  background: transparent;
+  border: none;
+  opacity: 0.6;
+}
+.frame-slot > span {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  padding: 4px 6px;
+  font-size: 11px;
+  border-radius: 5px;
+  color: white;
+  background: #1a1a1a;
+  white-space: nowrap;
+}
+.frame-slot.active-slot > span {
+  background: #f66d3b;
+}
+.focused-photo {
+  min-width: 0;
+  text-align: center;
+}
+.focused-photo > img {
+  width: 100%;
+  height: min(28dvh, 340px);
+  object-fit: contain;
+  border-radius: 12px;
+  background: #e9e4dc;
+}
+.focused-photo > span {
+  display: block;
+  font-size: 13px;
+  margin-top: 12px;
+  color: #4a4843;
+}
+.gallery-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+}
+.gallery-label h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.gallery-label h2 span {
+  color: #8b8781;
+  font-weight: 500;
+  margin-left: 4px;
+}
+.gallery-label > span {
+  font-size: 13px;
+  color: #f66d3b;
+}
+.photo-library {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 25dvh;
+  overflow-y: auto;
+  padding: 3px;
+  overscroll-behavior: contain;
+}
+.booth .photo-library > button {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 3px solid transparent;
+}
+.photo-library img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.booth .photo-library > button.in-frame {
+  border-color: #f66d3b;
+}
+.library-number {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 11px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  color: white;
+  background: #1a1a1aa6;
+}
+.library-selected {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px;
+  color: white;
+  background: #f66d3b;
+  font-size: 12px;
+}
+.gallery-selection .selection-footer {
+  margin-top: 0;
+  padding-top: 12px;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+.review-screen {
+  max-width: 720px;
+  margin: auto;
+}
+.review-screen .booth-preview {
+  padding: 20px 0;
+}
+.review-screen .booth-preview > img {
+  width: auto;
+  height: min(54dvh, 650px);
+  max-width: 100%;
+  object-fit: contain;
+}
+.review-screen .booth-preview > button {
+  display: flex;
+  width: 100%;
+}
+.review-screen .booth-preview small {
+  text-align: center;
+}
+.capture-topbar {
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-bottom: 8px;
+}
+.capture-filmstrip {
+  height: 44px;
+  margin-bottom: 8px;
+}
+.capture-filmstrip img {
+  width: 40px;
+  height: 40px;
+}
+.capture-bottom {
+  padding-top: 8px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+@media (orientation: landscape) and (min-width: 1000px) {
+  .welcome-scene {
+    max-width: 1060px;
+    grid-template-columns: 1.15fr 1fr;
+    min-height: calc(100dvh - 150px);
+    align-items: center;
+    gap: 56px;
+  }
+  .welcome-art {
+    height: min(70dvh, 600px);
+  }
+}
+@media (max-width: 600px) {
+  .booth-welcome {
+    padding: 0 20px;
+  }
+  .welcome-scene {
+    margin-top: 16px;
+    gap: 20px;
+  }
+  .welcome-art {
+    height: 39dvh;
+  }
+  .booth .welcome-copy h1 {
+    font-size: 40px;
+  }
+  .welcome-copy > p:not(.booth-eyebrow) {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .selection-stage {
+    gap: 12px;
+    padding: 10px;
+  }
+  .live-frame {
+    height: 28dvh;
+  }
+  .focused-photo > img {
+    height: 21dvh;
+  }
+  .focused-photo > span {
+    font-size: 11px;
+  }
+  .photo-library {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-height: 29dvh;
+    gap: 6px;
+  }
+  .frame-slot > span {
+    top: 2px;
+    left: 2px;
+    font-size: 9px;
+    padding: 2px;
+  }
+  .selection-guide {
+    font-size: 12px;
+  }
+}

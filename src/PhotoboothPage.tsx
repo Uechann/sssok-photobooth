@@ -1,4 +1,15 @@
-import mascotWave from "./assets/mascot-wave.png";
+import shot1 from "./assets/ssok-shot-01.png";
+import shot2 from "./assets/ssok-shot-02.png";
+import shot3 from "./assets/ssok-shot-03.png";
+import shot4 from "./assets/ssok-shot-04.png";
+import shot5 from "./assets/ssok-shot-05.png";
+import shot6 from "./assets/ssok-shot-06.png";
+import shot7 from "./assets/ssok-shot-07.png";
+import shot8 from "./assets/ssok-shot-08.png";
+import shot9 from "./assets/ssok-shot-09.png";
+import shot10 from "./assets/ssok-shot-10.png";
+import shot11 from "./assets/ssok-shot-11.png";
+import shot12 from "./assets/ssok-shot-12.png";
 import {
   joinRoom,
   createAnonymous,
@@ -10,7 +21,14 @@ import {
 } from "./api";
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { canvasBlob, compose, frames, type Frame } from "./compose";
+import {
+  canvasBlob,
+  compose,
+  frames,
+  loadImage,
+  TEMPLATE_SLOTS,
+  TEMPLATE_SIZE,
+} from "./compose";
 import "./photobooth.css";
 
 type Photo = { url: string; file: File };
@@ -24,12 +42,7 @@ export const PhotoboothPage = () => {
   const [choosing, setChoosing] = useState(true);
   const [cameraReady, setCameraReady] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const [frame, setFrame] = useState<Frame>(frames[0]);
-  const [custom, setCustom] = useState<Frame>({
-    name: "우리 팀",
-    color: "#ffd4df",
-    ink: "#29232c",
-  });
+  const frame = frames[0];
   const [preview, setPreview] = useState("");
   const [uploadStarted, setUploadStarted] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -66,14 +79,14 @@ export const PhotoboothPage = () => {
     [],
   );
   useEffect(() => {
-    if (step !== "design" || selected.length !== 4) {
+    if (step !== "design") {
       return;
     }
     setPreview("");
     let canceled = false;
     let url = "";
     compose(
-      selected.map((i) => photos[i].url),
+      Array.from({ length: 4 }, (_, i) => photos[selected[i]]?.url),
       frame,
     )
       .then((blob) => {
@@ -172,25 +185,29 @@ export const PhotoboothPage = () => {
     lock.current = true;
     setBusy(true);
     try {
-      for (let i = 0; i < 4; i++) {
+      for (const [i, src] of [
+        shot1,
+        shot2,
+        shot3,
+        shot4,
+        shot5,
+        shot6,
+        shot7,
+        shot8,
+        shot9,
+        shot10,
+        shot11,
+        shot12,
+      ].entries()) {
+        const image = await loadImage(src);
         const c = document.createElement("canvas");
-        c.width = 1000;
-        c.height = 750;
-        const ctx = c.getContext("2d")!;
-        ctx.fillStyle = ["#d5e5fd", "#ffe1cc", "#d9edc2", "#e6d9fa"][i];
-        ctx.fillRect(0, 0, 1000, 750);
-        ctx.fillStyle = "#ffffff";
-        ctx.beginPath();
-        ctx.arc(500, 360, 210, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#34372f";
-        ctx.font = "bold 100px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(["HELLO!", "우리의", "오늘을", "쏙!"][i], 500, 400);
-        ctx.font = "24px sans-serif";
-        ctx.fillText("DEMO DAY · SAMPLE PHOTO", 500, 670);
+        c.width = image.width;
+        c.height = image.height;
+        c.getContext("2d")!.drawImage(image, 0, 0);
         addBlob(await canvasBlob(c), `sample-${Date.now()}-${i}.jpg`);
       }
+    } catch {
+      setError("샘플 사진을 불러오지 못했어요. 다시 시도해 주세요.");
     } finally {
       lock.current = false;
       setBusy(false);
@@ -199,9 +216,8 @@ export const PhotoboothPage = () => {
   const finish = () => {
     generation.current++;
     stop();
-    setSelected([]);
     setFocusedPhoto(0);
-    setActiveSlot(0);
+    setActiveSlot(Math.min(selected.length, 3));
     setChoosing(true);
     if (document.fullscreenElement)
       void document.exitFullscreen().catch(() => {});
@@ -305,7 +321,7 @@ export const PhotoboothPage = () => {
         <span className="booth-badge">우테코 8기 · 데모데이</span>
       </header>
       <div className="booth-steps">
-        {["사진 촬영", "네컷 만들기", "QR 공유"].map((s, i) => (
+        {["사진 촬영", "사진 선택", "QR 공유"].map((s, i) => (
           <span
             key={s}
             className={
@@ -328,26 +344,34 @@ export const PhotoboothPage = () => {
         </div>
       )}
       {step === "welcome" ? (
-        <section className="booth-welcome">
-          <div>
-            <p className="booth-eyebrow">데모데이 포토부스</p>
-            <h1>
-              함께한 오늘,
-              <br />
-              <em>네컷에 쏙</em>
-            </h1>
-            <p>
-              사진을 찍고, 좋아하는 네 장을 골라요.
-              <br />
-              완성한 사진은 QR로 함께 가져가세요.
-            </p>
-            <button className="primary" onClick={() => void start()}>
-              촬영 시작하기
-            </button>
-            <small>카메라 권한을 허용해 주세요</small>
+        <section className="welcome-scene">
+          <div className="welcome-art">
+            <img src={shot1} alt="사진을 나누는 쏙과 친구들" />
+            <span>WOOWACOURSE 8TH · PHOTO BOOTH</span>
           </div>
-          <div className="booth-poster" aria-hidden="true">
-            <img src={mascotWave} alt="" />
+          <div className="welcome-copy">
+            <p className="booth-eyebrow">함께한 오늘을</p>
+            <h1>
+              네컷에 <em>쏙.</em>
+            </h1>
+            <p>마음껏 찍고, 네 장을 골라 함께 가져가요.</p>
+            <button className="primary" onClick={() => void start()}>
+              사진 찍기
+            </button>
+            <button
+              className="welcome-demo"
+              disabled={busy}
+              onClick={async () => {
+                await sample();
+                setChoosing(true);
+                setSelected([]);
+                setFocusedPhoto(0);
+                setActiveSlot(0);
+                setStep("design");
+              }}
+            >
+              샘플로 둘러보기
+            </button>
           </div>
         </section>
       ) : null}
@@ -465,75 +489,95 @@ export const PhotoboothPage = () => {
       )}
       {step === "design" &&
         (choosing ? (
-          <section className="photo-selection">
+          <section className="photo-selection gallery-selection">
             <div className="selection-heading">
-              <h1>네 장을 골라 주세요</h1>
-              <span>{selected.length}/4</span>
+              <h1>네컷에 담을 사진</h1>
+              <span>{selected.length} / 4</span>
             </div>
-            <div className="single-photo">
-              <img
-                src={photos[focusedPhoto]?.url}
-                alt={`사진 ${focusedPhoto + 1} 크게 보기`}
-              />
+            <p className="selection-guide">
+              바꿀 자리를 누른 뒤, 아래에서 사진을 골라 주세요.
+            </p>
+            <div className="selection-stage">
+              <div className="live-frame">
+                <img
+                  src={preview || frame.template}
+                  alt="선택한 사진이 담긴 우테코 네컷"
+                />
+                {TEMPLATE_SLOTS.map((slot, i) => (
+                  <button
+                    key={i}
+                    className={`frame-slot ${activeSlot === i ? "active-slot" : ""}`}
+                    aria-label={`${i + 1}번 자리${selected[i] !== undefined ? ", 사진 바꾸기" : ""}`}
+                    aria-pressed={activeSlot === i}
+                    disabled={i > selected.length}
+                    onClick={() => {
+                      setActiveSlot(i);
+                      if (selected[i] !== undefined)
+                        setFocusedPhoto(selected[i]);
+                    }}
+                    style={{
+                      left: `${(slot.x / TEMPLATE_SIZE.width) * 100}%`,
+                      top: `${(slot.y / TEMPLATE_SIZE.height) * 100}%`,
+                      width: `${(slot.w / TEMPLATE_SIZE.width) * 100}%`,
+                      height: `${(slot.h / TEMPLATE_SIZE.height) * 100}%`,
+                    }}
+                  >
+                    <span>
+                      {i + 1}
+                      {activeSlot === i ? " · 선택 중" : ""}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="focused-photo">
+                <img
+                  src={photos[focusedPhoto]?.url}
+                  alt={`사진 ${focusedPhoto + 1} 크게 보기`}
+                />
+                <span>
+                  사진 {focusedPhoto + 1}
+                  {selected.includes(focusedPhoto)
+                    ? ` · ${selected.indexOf(focusedPhoto) + 1}번에 담았어요`
+                    : ""}
+                </span>
+              </div>
             </div>
-            <div className="photo-navigation">
-              <button
-                aria-label="이전 사진"
-                disabled={focusedPhoto === 0}
-                onClick={() => setFocusedPhoto((i) => i - 1)}
-              >
-                ←
-              </button>
-              <span>
-                {focusedPhoto + 1} / {photos.length}
-              </span>
-              <button
-                aria-label="다음 사진"
-                disabled={focusedPhoto === photos.length - 1}
-                onClick={() => setFocusedPhoto((i) => i + 1)}
-              >
-                →
-              </button>
+            <div className="gallery-label">
+              <h2>
+                촬영한 사진 <span>{photos.length}</span>
+              </h2>
+              <span>{activeSlot + 1}번 자리에 담기</span>
             </div>
-            <div className="selected-slots" aria-label="네컷 사진 자리">
-              {Array.from({ length: 4 }, (_, slot) => (
+            <div className="photo-library" aria-label="촬영한 모든 사진">
+              {photos.map((photo, i) => (
                 <button
-                  key={slot}
-                  aria-label={`${slot + 1}번 자리${selected[slot] !== undefined ? ", 사진 바꾸기" : ""}`}
-                  aria-pressed={activeSlot === slot}
-                  disabled={slot > selected.length}
-                  onClick={() => setActiveSlot(slot)}
+                  key={photo.url}
+                  className={selected.includes(i) ? "in-frame" : ""}
+                  aria-label={`사진 ${i + 1}${selected.includes(i) ? `, ${selected.indexOf(i) + 1}번에 선택됨` : `, ${activeSlot + 1}번에 담기`}`}
+                  aria-pressed={selected.includes(i)}
+                  onClick={() => {
+                    setFocusedPhoto(i);
+                    const existing = selected.indexOf(i);
+                    if (existing !== -1) {
+                      setActiveSlot(existing);
+                      return;
+                    }
+                    const next = [...selected];
+                    next[activeSlot] = i;
+                    setSelected(next);
+                    if (next.length < 4) setActiveSlot(next.length);
+                  }}
                 >
-                  {selected[slot] !== undefined ? (
-                    <img
-                      src={photos[selected[slot]].url}
-                      alt={`${slot + 1}번 선택 사진`}
-                    />
-                  ) : (
-                    <span className="slot-empty">+</span>
+                  <img src={photo.url} alt={`촬영 사진 ${i + 1}`} />
+                  <span className="library-number">{i + 1}</span>
+                  {selected.includes(i) && (
+                    <span className="library-selected">
+                      ✓ {selected.indexOf(i) + 1}번
+                    </span>
                   )}
-                  <span className="slot-number">{slot + 1}</span>
                 </button>
               ))}
             </div>
-            <button
-              className="primary select-photo"
-              disabled={selected.includes(focusedPhoto)}
-              onClick={() => {
-                const next = [...selected];
-                next[activeSlot] = focusedPhoto;
-                setSelected(next);
-                setActiveSlot(Math.min(next.length, 3));
-                const nextPhoto = photos.findIndex(
-                  (_, i) => i > focusedPhoto && !next.includes(i),
-                );
-                if (nextPhoto !== -1) setFocusedPhoto(nextPhoto);
-              }}
-            >
-              {selected.includes(focusedPhoto)
-                ? "담은 사진이에요"
-                : `${activeSlot + 1}번에 ${selected[activeSlot] !== undefined ? "바꾸기" : "담기"}`}
-            </button>
             <div className="selection-footer">
               <button onClick={() => void start()}>더 촬영하기</button>
               <button
@@ -541,98 +585,22 @@ export const PhotoboothPage = () => {
                 disabled={selected.length !== 4}
                 onClick={() => setChoosing(false)}
               >
-                프레임 선택 →
+                완성 사진 확인 →
               </button>
             </div>
           </section>
         ) : (
-          <section className="booth-work frame-screen">
-            <div>
-              <h2>프레임 선택</h2>
-              <div className="booth-actions">
-                {[...frames, custom].map((f, i) => (
-                  <button
-                    disabled={busy || uploadStarted}
-                    key={i}
-                    aria-pressed={frame === f}
-                    className={
-                      frame === f
-                        ? "frame-option selected-frame"
-                        : "frame-option"
-                    }
-
-                    onClick={() => setFrame(f)}
-                  >
-                    {f.name}
-                  </button>
-                ))}
-              </div>
-              <details>
-                <summary>팀 프레임 꾸미기</summary>
-                <fieldset disabled={busy || uploadStarted}>
-                  <label>
-                    팀 이름
-                    <input
-                      maxLength={20}
-                      value={custom.name}
-                      onChange={(e) => {
-                        const f = { ...custom, name: e.target.value };
-                        setCustom(f);
-                        setFrame(f);
-                      }}
-                    />
-                  </label>
-                  <label>
-                    프레임 색
-                    <input
-                      type="color"
-                      value={custom.color}
-                      onChange={(e) => {
-                        const f = { ...custom, color: e.target.value };
-                        setCustom(f);
-                        setFrame(f);
-                      }}
-                    />
-                  </label>
-                  <label>
-                    글자 색
-                    <input
-                      type="color"
-                      value={custom.ink}
-                      onChange={(e) => {
-                        const f = { ...custom, ink: e.target.value };
-                        setCustom(f);
-                        setFrame(f);
-                      }}
-                    />
-                  </label>
-                  <label>
-                    로고 / 캐릭터
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const f = { ...custom, logo: objectUrl(file) };
-                          setCustom(f);
-                          setFrame(f);
-                        }
-                      }}
-                    />
-                  </label>
-                </fieldset>
-              </details>
-
+          <section className="review-screen">
+            <div className="selection-heading">
+              <h1>오늘의 네컷</h1>
               <button
                 disabled={busy || uploadStarted}
                 onClick={() => setChoosing(true)}
               >
-                ← 사진 다시 고르기
+                사진 바꾸기
               </button>
             </div>
             <aside className="booth-preview">
-              <h2>미리보기</h2>
               {preview && selected.length === 4 ? (
                 <img src={preview} alt="합성된 인생네컷 미리보기" />
               ) : (

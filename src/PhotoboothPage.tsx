@@ -1,4 +1,12 @@
-import { joinRoom, createAnonymous, clearSession, createRoom, uploadFiles, SERVICE_ORIGIN, ROUTES } from "./api";
+import {
+  joinRoom,
+  createAnonymous,
+  clearSession,
+  createRoom,
+  uploadFiles,
+  SERVICE_ORIGIN,
+  ROUTES,
+} from "./api";
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { canvasBlob, compose, frames, type Frame } from "./compose";
@@ -6,7 +14,9 @@ import "./photobooth.css";
 
 type Photo = { url: string; file: File };
 export const PhotoboothPage = () => {
-  const [step, setStep] = useState<"welcome" | "capture" | "design" | "done">("welcome");
+  const [step, setStep] = useState<"welcome" | "capture" | "design" | "done">(
+    "welcome",
+  );
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [frame, setFrame] = useState<Frame>(frames[0]);
@@ -28,7 +38,9 @@ export const PhotoboothPage = () => {
   const urls = useRef<string[]>([]);
   const generation = useRef(0);
   const lock = useRef(false);
-  const room = useRef<{ roomId: number; code: string; token: string } | null>(null);
+  const room = useRef<{ roomId: number; code: string; token: string } | null>(
+    null,
+  );
   const pending = useRef<File[] | null>(null);
   const objectUrl = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
@@ -81,7 +93,11 @@ export const PhotoboothPage = () => {
           "카메라는 localhost 또는 HTTPS에서 열어 주세요. 사진 불러오기도 사용할 수 있어요.",
         );
       const media = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 1600 }, height: { ideal: 1200 } },
+        video: {
+          facingMode: "user",
+          width: { ideal: 1600 },
+          height: { ideal: 1200 },
+        },
         audio: false,
       });
       if (current !== generation.current) {
@@ -101,7 +117,10 @@ export const PhotoboothPage = () => {
   const addBlob = (blob: Blob, name: string) =>
     setPhotos((p) => [
       ...p,
-      { url: objectUrl(blob), file: new File([blob], name, { type: blob.type }) },
+      {
+        url: objectUrl(blob),
+        file: new File([blob], name, { type: blob.type }),
+      },
     ]);
   const shoot = async () => {
     if (lock.current) return;
@@ -115,7 +134,9 @@ export const PhotoboothPage = () => {
       }
       const v = video.current;
       if (!v?.videoWidth)
-        throw new Error("카메라가 준비되지 않았어요. 사진을 불러오거나 카메라를 다시 켜 주세요.");
+        throw new Error(
+          "카메라가 준비되지 않았어요. 사진을 불러오거나 카메라를 다시 켜 주세요.",
+        );
       const c = document.createElement("canvas");
       c.width = v.videoWidth;
       c.height = v.videoHeight;
@@ -196,11 +217,16 @@ export const PhotoboothPage = () => {
         setStatus("사진을 담을 방을 만들고 있어요");
         const session = await createAnonymous({ nickname: "포토부스" });
         const created = await createRoom(
-          { nickname: "포토부스", name: photos.every(p => p.file.name.startsWith("sample-")) ? "[테스트] 포토부스" : "데모데이 네컷", uploadPolicy: "host" },
+          {
+            nickname: "포토부스",
+            name: photos.every((p) => p.file.name.startsWith("sample-"))
+              ? "[테스트] 포토부스"
+              : "데모데이 네컷",
+            uploadPolicy: "host",
+          },
           session.accessToken,
         );
         room.current = { ...created, token: session.accessToken };
-
       }
       await joinRoom(room.current.roomId, room.current.token, {
         code: room.current.code,
@@ -211,7 +237,7 @@ export const PhotoboothPage = () => {
         roomId: room.current.roomId,
         token: room.current.token,
         files: pending.current,
-        onProgress: (done,total) => setStatus(`${done}/${total}장 저장 완료`),
+        onProgress: (done, total) => setStatus(`${done}/${total}장 저장 완료`),
       });
       const rejectedNames = new Set(result.rejected.map((f) => f.fileName));
       pending.current = [
@@ -222,7 +248,9 @@ export const PhotoboothPage = () => {
         throw new Error(
           `${pending.current.length}장을 올리지 못했어요. 같은 방에 다시 시도해 주세요.`,
         );
-      setShareUrl(new URL(ROUTES.roomInvite(room.current.code), origin.origin).href);
+      setShareUrl(
+        new URL(ROUTES.roomInvite(room.current.code), origin.origin).href,
+      );
       setStep("done");
     } catch (e) {
       setError((e as Error).message);
@@ -251,17 +279,20 @@ export const PhotoboothPage = () => {
     <main className="booth">
       <header className="booth-header">
         <a href="/" className="booth-logo">
-          쏙<span>PHOTO CLUB</span>
+          쏙<span>포토부스</span>
         </a>
-        <span className="booth-badge">WOOWACOURSE 8TH · DEMO DAY</span>
-        <span>오늘의 순간을 가져가세요 ↗</span>
+        <span className="booth-badge">우테코 8기 · 데모데이</span>
       </header>
       <div className="booth-steps">
-        {["촬영하기", "네컷 꾸미기", "함께 가져가기"].map((s, i) => (
+        {["사진 촬영", "네컷 만들기", "QR 공유"].map((s, i) => (
           <span
             key={s}
             className={
-              (step === "welcome" || step === "capture" ? 0 : step === "design" ? 1 : 2) === i
+              (step === "welcome" || step === "capture"
+                ? 0
+                : step === "design"
+                  ? 1
+                  : 2) === i
                 ? "active"
                 : ""
             }
@@ -278,28 +309,39 @@ export const PhotoboothPage = () => {
       {step === "welcome" ? (
         <section className="booth-welcome">
           <div>
-            <p className="booth-eyebrow">반가운 얼굴, 오래 남을 오늘.</p>
+            <p className="booth-eyebrow">데모데이 포토부스</p>
             <h1>
-              우리의 데모데이를
+              함께한 오늘,
               <br />
-              <em>네컷에 쏙.</em>
+              <em>네컷에 쏙</em>
             </h1>
             <p>
-              마음껏 찍고, 좋아하는 네 장을 고르세요.
+              사진을 찍고, 좋아하는 네 장을 골라요.
               <br />
-              친구들과 나누는 건 QR 하나면 충분해요.
+              완성한 사진은 QR로 함께 가져가세요.
             </p>
             <button className="primary" onClick={() => void start()}>
-              사진 찍기 시작 ↗
+              촬영 시작하기
             </button>
-            <small>카메라 접근을 허용해 주세요 · 앱 설치 없이 함께</small>
+            <small>카메라 권한을 허용해 주세요</small>
           </div>
-          <div className="booth-poster">
-            <span>THE GOOD TIMES CLUB</span>
-            <div>✌️</div>
-            <div>📸</div>
-            <strong>오늘도, 우리답게.</strong>
-            <span>sssOK × DEMO DAY</span>
+          <div className="booth-poster" aria-hidden="true">
+            <div className="poster-strip">
+              <div>
+                <span>쏙</span>
+              </div>
+              <div>
+                <span>우리</span>
+              </div>
+              <div>
+                <span>함께</span>
+              </div>
+              <div>
+                <span>오늘</span>
+              </div>
+              <strong>우리의 오늘을, 쏙.</strong>
+            </div>
+            <span className="poster-note">네 장의 순간, 하나의 추억</span>
           </div>
         </section>
       ) : null}
@@ -307,35 +349,41 @@ export const PhotoboothPage = () => {
         <section className="booth-work">
           <div>
             <div className="booth-section-title">
-              <h1>지금 이 순간, 찰칵.</h1>
+              <h1>사진을 찍어 주세요</h1>
               <span>{photos.length}장 촬영</span>
             </div>
             <div className="booth-camera">
               <video ref={video} autoPlay muted playsInline />
-              <span className="booth-live">● LIVE CAMERA</span>
+              <span className="booth-live">카메라</span>
               {count > 0 && <b className="booth-count">{count}</b>}
-              <p>화면을 보고, 가장 우리다운 표정!</p>
             </div>
             <div className="booth-actions">
               <button disabled={busy} onClick={() => void start()}>
                 카메라 켜기
               </button>
-              <button className="primary" disabled={busy} onClick={() => void shoot()}>
+              <button
+                className="primary"
+                disabled={busy}
+                onClick={() => void shoot()}
+              >
                 {count ? `${count}…` : "● 사진 찍기"}
               </button>
               <button disabled={busy || photos.length < 4} onClick={finish}>
-                촬영 종료 →
+                네컷 만들기 →
               </button>
             </div>
             <p className="booth-hint">
-              최소 네 장을 찍어 주세요. 종료하기 전까지 원하는 만큼 찍을 수 있어요.
+              4장 이상 촬영하면 네컷을 만들 수 있어요.
             </p>
           </div>
           <aside>
             <h2>
-              오늘의 사진들 <span>{photos.length}</span>
+              촬영한 사진 <span>{photos.length}</span>
             </h2>
             <div className="booth-thumbnails">
+              {photos.length === 0 && (
+                <p className="booth-empty">촬영한 사진이 여기에 모여요.</p>
+              )}
               {photos.map((p, i) => (
                 <img key={p.url} src={p.url} alt={`촬영 사진 ${i + 1}`} />
               ))}
@@ -357,14 +405,28 @@ export const PhotoboothPage = () => {
                       image.src = objectUrl(f);
                       await image.decode();
                       const c = document.createElement("canvas");
-                      const r = Math.min(1, 1600 / Math.max(image.width, image.height));
+                      const r = Math.min(
+                        1,
+                        1600 / Math.max(image.width, image.height),
+                      );
                       c.width = image.width * r;
                       c.height = image.height * r;
-                      c.getContext("2d")!.drawImage(image, 0, 0, c.width, c.height);
-                      addBlob(await canvasBlob(c), `import-${crypto.randomUUID()}.jpg`);
+                      c.getContext("2d")!.drawImage(
+                        image,
+                        0,
+                        0,
+                        c.width,
+                        c.height,
+                      );
+                      addBlob(
+                        await canvasBlob(c),
+                        `import-${crypto.randomUUID()}.jpg`,
+                      );
                     }
                   } catch {
-                    setError("읽을 수 없는 사진이 있어요. JPEG 또는 PNG로 다시 선택해 주세요.");
+                    setError(
+                      "읽을 수 없는 사진이 있어요. JPEG 또는 PNG로 다시 선택해 주세요.",
+                    );
                   } finally {
                     setBusy(false);
                   }
@@ -372,7 +434,7 @@ export const PhotoboothPage = () => {
               />
             </label>
             <button disabled={busy} onClick={() => void sample()}>
-              샘플 사진 4장으로 체험
+              샘플로 체험하기
             </button>
           </aside>
         </section>
@@ -380,31 +442,46 @@ export const PhotoboothPage = () => {
       {step === "design" && (
         <section className="booth-work">
           <div>
-            <h1>좋아하는 순간을 골라요.</h1>
-            <p>선택한 순서대로 네컷에 담겨요. {selected.length}/4</p>
+            <h1>네컷을 만들어 주세요</h1>
+            <p className="booth-hint">
+              담을 순서대로 4장을 선택해 주세요.{" "}
+              <strong>{selected.length}/4</strong>
+            </p>
             <div className="booth-picker">
               {photos.map((p, i) => (
                 <button
                   disabled={busy || uploadStarted}
+                  aria-pressed={selected.includes(i)}
+                  aria-label={`사진 ${i + 1}${selected.includes(i) ? `, ${selected.indexOf(i) + 1}번째 선택` : " 선택"}`}
                   className={selected.includes(i) ? "chosen" : ""}
                   key={p.url}
                   onClick={() =>
                     setSelected((s) =>
-                      s.includes(i) ? s.filter((n) => n !== i) : s.length < 4 ? [...s, i] : s,
+                      s.includes(i)
+                        ? s.filter((n) => n !== i)
+                        : s.length < 4
+                          ? [...s, i]
+                          : s,
                     )
                   }
                 >
                   <img src={p.url} alt={`사진 ${i + 1}`} />
-                  <span>{selected.includes(i) ? selected.indexOf(i) + 1 : "+"}</span>
+                  <span>
+                    {selected.includes(i) ? selected.indexOf(i) + 1 : "+"}
+                  </span>
                 </button>
               ))}
             </div>
-            <h2>오늘의 프레임</h2>
+            <h2>프레임 선택</h2>
             <div className="booth-actions">
               {[...frames, custom].map((f, i) => (
                 <button
                   disabled={busy || uploadStarted}
                   key={i}
+                  aria-pressed={frame === f}
+                  className={
+                    frame === f ? "frame-option selected-frame" : "frame-option"
+                  }
                   style={{ background: f.color, color: f.ink }}
                   onClick={() => setFrame(f)}
                 >
@@ -413,7 +490,7 @@ export const PhotoboothPage = () => {
               ))}
             </div>
             <details>
-              <summary>우리 팀 프레임 만들기</summary>
+              <summary>팀 프레임 꾸미기</summary>
               <fieldset disabled={busy || uploadStarted}>
                 <label>
                   팀 이름
@@ -469,20 +546,27 @@ export const PhotoboothPage = () => {
               </fieldset>
             </details>
 
-            <button disabled={busy || uploadStarted} onClick={() => void start()}>
+            <button
+              disabled={busy || uploadStarted}
+              onClick={() => void start()}
+            >
               ← 더 촬영하기
             </button>
           </div>
           <aside className="booth-preview">
-            <h2>한 장의 오늘</h2>
+            <h2>미리보기</h2>
             {preview && selected.length === 4 ? (
               <img src={preview} alt="합성된 인생네컷 미리보기" />
             ) : (
               <p>사진 네 장을 선택해 주세요.</p>
             )}
             {preview && selected.length === 4 && (
-              <a className="booth-download" download="sssok-four-cuts.jpg" href={preview}>
-                네컷 사진 다운로드 ↓
+              <a
+                className="booth-download"
+                download="sssok-four-cuts.jpg"
+                href={preview}
+              >
+                네컷 다운로드
               </a>
             )}
             <button
@@ -490,34 +574,40 @@ export const PhotoboothPage = () => {
               disabled={busy || selected.length !== 4 || !preview}
               onClick={() => void publish()}
             >
-              {busy ? status : uploadStarted ? "업로드 다시 시도" : "쏙에 저장하고 QR 받기 →"}
+              {busy
+                ? status
+                : uploadStarted
+                  ? "업로드 다시 시도"
+                  : "사진 저장하고 QR 받기"}
             </button>
-            <small>원본 전체와 네컷을 쏙 서버에 저장합니다. 링크를 받은 사람은 사진을 볼 수 있어요.</small>
+            <small>
+              원본과 네컷이 함께 저장돼요. 링크를 받은 사람은 사진을 볼 수
+              있어요.
+            </small>
           </aside>
         </section>
       )}
       {step === "done" && (
         <section className="booth-done">
-          <p className="booth-eyebrow">사진도 추억도, 함께 가져가요</p>
-          <h1>우리의 오늘이 담겼어요.</h1>
+          <p className="booth-eyebrow">저장 완료</p>
+          <h1>QR로 사진을 가져가세요</h1>
           <div className="booth-qr">
             <QRCodeSVG value={shareUrl} size={230} marginSize={2} />
           </div>
           <p>
-            카메라로 QR을 비추고
-            <br />쏙 사진방에서 원본과 네컷을 저장하세요.
+            휴대폰 카메라로 QR을 스캔해 주세요.
+            <br />
+            원본과 네컷을 모두 저장할 수 있어요.
           </p>
           <a href={shareUrl} target="_blank" rel="noreferrer">
             사진방 열기 ↗
           </a>
           <button className="primary" onClick={reset}>
-            다음 친구들, 촬영 시작 →
+            다음 촬영 시작
           </button>
         </section>
       )}
-      <footer>
-        쏙 PHOTO CLUB <span>사진은 가볍게, 추억은 오래.</span> MADE FOR OUR DEMO DAY
-      </footer>
+      <footer>쏙 · 데모데이 포토부스</footer>
     </main>
   );
 };

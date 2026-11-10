@@ -1,4 +1,4 @@
-import {encodeJpeg} from "./imageEncoding";
+import { encodeJpeg } from "./imageEncoding";
 export interface Frame {
   name: string;
   color: string;
@@ -6,9 +6,9 @@ export interface Frame {
   logo?: string;
 }
 export const frames: Frame[] = [
-  { name: "쏙, 네컷", color: "#fff9ef", ink: "#303329" },
+  { name: "기본", color: "#ffffff", ink: "#1A1A1A" },
   { name: "우아한테크코스", color: "#c5f467", ink: "#18391f" },
-  { name: "sssOK", color: "#7763ee", ink: "#ffffff" },
+  { name: "쏙", color: "#F66D3B", ink: "#ffffff" },
 ];
 export const loadImage = (src: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -50,11 +50,21 @@ export async function compose(sources: string[], frame: Frame): Promise<Blob> {
   ctx.fillText(frame.name, 360, 2020, 600);
   ctx.font = "18px sans-serif";
   ctx.fillText("WOOWACOURSE 8TH · DEMO DAY", 360, 2060);
-  ctx.fillText("우리의 오늘을, 쏙.  /  " + new Date().toLocaleDateString("ko-KR"), 360, 2100);
+  ctx.fillText(
+    "우리의 오늘을, 쏙.  /  " + new Date().toLocaleDateString("ko-KR"),
+    360,
+    2100,
+  );
   if (frame.logo) {
     const logo = await loadImage(frame.logo);
     const r = Math.min(120 / logo.width, 48 / logo.height);
-    ctx.drawImage(logo, (720 - logo.width * r) / 2, 2120, logo.width * r, logo.height * r);
+    ctx.drawImage(
+      logo,
+      (720 - logo.width * r) / 2,
+      2120,
+      logo.width * r,
+      logo.height * r,
+    );
   }
   return encodeJpeg(canvas);
 }

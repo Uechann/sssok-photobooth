@@ -36,14 +36,20 @@ git push -u origin feature/frame-picker
 main 대상 PR로 리뷰합니다. 직접 push하려면 저장소 소유자가 팀원을 collaborator로 추가해야 합니다.
 권한이 없으면 fork에서 PR을 보낼 수 있습니다. CI는 타입 검사·테스트·빌드와 배포 아티팩트를 생성합니다.
 
-## 배포
+## Vercel 자동 배포
 
-현재 운영 호스팅은 Sites이며 `.openai/hosting.json`에 기존 프로젝트 ID가 있습니다.
-Sites 도구로 기존 프로젝트 소스를 열고, 리뷰된 GitHub main 커밋을 적용한 뒤 빌드·버전 저장·배포합니다.
-**GitHub push만으로 현재 Sites 배포가 자동 변경되지는 않습니다.** CI의 `photobooth-worker` 아티팩트에는 Worker 배포 파일이 있습니다.
+1. Vercel에서 기존 GitHub 저장소 `Uechann/sssok-photobooth`를 Import합니다 (새 저장소 복제 아님).
+2. Framework는 Other, Root Directory는 루트, Node.js는 24.x를 선택합니다.
+3. `vercel.json`의 설치·빌드·출력 설정을 사용하고 Production Branch를 `main`으로 설정합니다.
+4. 최초 배포 후 main push/PR 병합마다 운영 배포, 작업 브랜치 push마다 Preview가 생성됩니다.
 
-Cloudflare 계정에서 별도 운영하려면 `wrangler.jsonc` 설정으로 `npx wrangler deploy`를 실행할 수도 있습니다.
-이 경우 Cloudflare 계정 인증과 별도 도메인 설정이 필요하며 현재 Sites 주소와는 별개입니다.
+빌드 명령에 타입 검사와 테스트가 포함돼 실패 시 배포되지 않습니다. GitHub CI는 별도로 병렬 실행됩니다.
+정적 화면은 CDN에서, `/api/*`와 `/storage`는 기존 허용 목록을 재사용하는 Node.js 함수에서 처리합니다.
+Vercel의 요청 크기 제한에 맞춰 JPEG를 필요할 때만 압축하고 한 장당 4MB를 넘으면 전송 전에 안내합니다.
+환경변수나 쏙 비밀키는 필요하지 않습니다. 인증 토큰은 방문자별로 발급됩니다.
+
+현재 Sites 주소는 별도 배포이며 GitHub push만으로 업데이트되지 않습니다.
+기존 Worker 배포도 `npm run build` 출력으로 유지할 수 있습니다.
 
 ## 구조
 

@@ -1,3 +1,4 @@
+import {encodeJpeg} from "./imageEncoding";
 export interface Frame {
   name: string;
   color: string;
@@ -16,14 +17,7 @@ export const loadImage = (src: string): Promise<HTMLImageElement> =>
     image.onerror = () => reject(new Error("사진을 불러오지 못했어요."));
     image.src = src;
   });
-export const canvasBlob = (canvas: HTMLCanvasElement): Promise<Blob> =>
-  new Promise((resolve, reject) =>
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("사진 저장에 실패했어요."))),
-      "image/jpeg",
-      0.92,
-    ),
-  );
+export { encodeJpeg as canvasBlob } from "./imageEncoding";
 export async function compose(sources: string[], frame: Frame): Promise<Blob> {
   if (sources.length !== 4) throw new Error("네 장을 선택해 주세요.");
   const canvas = document.createElement("canvas");
@@ -62,5 +56,5 @@ export async function compose(sources: string[], frame: Frame): Promise<Blob> {
     const r = Math.min(120 / logo.width, 48 / logo.height);
     ctx.drawImage(logo, (720 - logo.width * r) / 2, 2120, logo.width * r, logo.height * r);
   }
-  return canvasBlob(canvas);
+  return encodeJpeg(canvas);
 }

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run typecheck && npm test && npm run build",
+  "outputDirectory": "dist/client",
+  "installCommand": "npm ci",
+  "functions": {
+    "api/gateway.mjs": {
+      "maxDuration": 120
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/gateway?__route=/api/:path*"
+    },
+    {
+      "source": "/storage",
+      "destination": "/api/gateway?__route=/storage"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/gateway?__route=/health"
+    },
+    {
+      "source": "/photobooth",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(), geolocation=()"
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import {MAX_IMAGE_BYTES} from "./imageEncoding.ts";
 type Session = {accessToken:string;refreshToken:string;expiresAt:string};
 let session: Session | null = null;
 export function clearSession() { session=null; }
@@ -22,6 +23,7 @@ export async function uploadFiles({roomId,token:access,files,onProgress}:{roomId
  for(const file of files) {
   let entry=entries.get(file);if(!entry){entry={stored:false,registered:false};entries.set(file,entry);}
   try {
+   if (file.size > MAX_IMAGE_BYTES) throw new Error("사진은 4MB 이하여야 합니다.");
    const auth=await token(access);
    if(!entry.issued){
     const result=await request<{issued:Issued[];rejected:{message:string}[]}>(`/rooms/${roomId}/media/upload-urls`,{files:[{fileName:file.name,mimeType:file.type,size:file.size}]},auth);

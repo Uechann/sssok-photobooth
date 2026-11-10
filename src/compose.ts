@@ -1,3 +1,4 @@
+import { coverCrop } from "./photoFit";
 import { encodeJpeg } from "./imageEncoding";
 import oldTemplate from "./assets/sssok-frame.png";
 import template from "./assets/wooteco-frame.png";
@@ -9,18 +10,39 @@ export const TEMPLATE_SLOTS = [
   { x: 50, y: 424, w: 506, h: 614 },
   { x: 50, y: 1065, w: 506, h: 614 },
 ];
+export type FrameCategory = "basic" | "wooteco" | "characters" | "teams";
+export const frameCategories: { id: FrameCategory; name: string }[] = [
+  { id: "basic", name: "기본 검흰" },
+  { id: "wooteco", name: "우테코" },
+  { id: "characters", name: "쏙지/깜지" },
+  { id: "teams", name: "우테코 각 팀" },
+];
 export interface Frame {
+  category: FrameCategory;
   name: string;
   color: string;
   ink: string;
   template?: string;
   logo?: string;
 }
+// Add each supplied frame here with its category. Empty categories stay empty.
 export const frames: Frame[] = [
-  { name: "우테코 8기", template, color: "#fff", ink: "#1a1a1a" },
-  { name: "기본", color: "#fff", ink: "#1a1a1a" },
-  { name: "우아한테크코스", color: "#c5f467", ink: "#18391f" },
-  { name: "sssOK", template: oldTemplate, color: "#ff9654", ink: "#281a14" },
+  { category: "basic", name: "화이트", color: "#fff", ink: "#1a1a1a" },
+  { category: "basic", name: "블랙", color: "#1a1a1a", ink: "#fff" },
+  {
+    category: "wooteco",
+    name: "우테코 8기",
+    template,
+    color: "#fff",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "characters",
+    name: "쏙지",
+    template: oldTemplate,
+    color: "#ff9654",
+    ink: "#281a14",
+  },
 ];
 export function frameLayout(frame: Frame) {
   return frame.template
@@ -104,16 +126,17 @@ export async function compose(
   images.forEach((image, i) => {
     if (!image) return;
     const slot = layout.slots[i];
-    // Contain preserves the whole face/photo; the white frame fills any spare space.
-    const ratio = Math.min(slot.w / image.width, slot.h / image.height);
-    const w = image.width * ratio,
-      h = image.height * ratio;
+    const crop = coverCrop(image.width, image.height, slot.w, slot.h);
     ctx.drawImage(
       image,
-      slot.x + (slot.w - w) / 2,
-      slot.y + (slot.h - h) / 2,
-      w,
-      h,
+      crop.sx,
+      crop.sy,
+      crop.sw,
+      crop.sh,
+      slot.x,
+      slot.y,
+      slot.w,
+      slot.h,
     );
   });
   if (frame.template) ctx.drawImage(await frameOverlay(frame.template), 0, 0);

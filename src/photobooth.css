@@ -1229,3 +1229,76 @@ summary:focus-visible {
     font-size: 12px;
   }
 }
+.frame-browser {
+  border: 1px solid #e4e2dd;
+  border-radius: 16px;
+  padding: 12px;
+}
+.frame-categories {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.booth .frame-categories button {
+  padding: 10px 6px;
+  font-size: 14px;
+  min-height: 48px;
+  border: 0;
+  background: #f4f2ee;
+  border-radius: 10px;
+}
+.booth .frame-categories button[aria-pressed="true"] {
+  background: #feeadf;
+  color: #b64019;
+}
+.frame-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.booth .frame-choices button {
+  min-height: 44px;
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+.frame-choices button > span {
+  width: 18px;
+  height: 22px;
+  border: 1px solid;
+  border-radius: 3px;
+}
+.current-frame {
+  font-size: 12px;
+  color: #736c63;
+  margin-top: 8px;
+}
+.empty-frames {
+  color: #8b8781;
+  font-size: 13px;
+  padding: 12px 0;
+}
+.gallery-selection .live-frame {
+  height: min(30dvh, 360px);
+}
+.gallery-selection .focused-photo > img {
+  height: min(18dvh, 210px);
+}
+.gallery-selection .photo-library {
+  max-height: 21dvh;
+}
+@media (max-width: 600px) {
+  .booth .frame-categories button {
+    font-size: 11px;
+  }
+  .gallery-selection .live-frame {
+    height: 25dvh;
+  }
+  .gallery-selection .focused-photo > img {
+    height: 14dvh;
+  }
+  .frame-browser {
+    padding: 8px;
+  }
+}

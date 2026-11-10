@@ -25,6 +25,8 @@ import {
   canvasBlob,
   compose,
   frames,
+  frameCategories,
+  type FrameCategory,
   loadImage,
   frameLayout,
   type Frame,
@@ -43,11 +45,7 @@ export const PhotoboothPage = () => {
   const [cameraReady, setCameraReady] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
   const [frame, setFrame] = useState<Frame>(frames[0]);
-  const [custom, setCustom] = useState<Frame>({
-    name: "우리 팀",
-    color: "#ffd4df",
-    ink: "#29232c",
-  });
+  const [category, setCategory] = useState<FrameCategory>(frames[0].category);
   const layout = frameLayout(frame);
   const [preview, setPreview] = useState("");
   const [uploadStarted, setUploadStarted] = useState(false);
@@ -500,6 +498,42 @@ export const PhotoboothPage = () => {
               <h1>네컷에 담을 사진</h1>
               <span>{selected.length} / 4</span>
             </div>
+            <div className="frame-browser">
+              <div className="frame-categories" aria-label="프레임 카테고리">
+                {frameCategories.map((c) => (
+                  <button
+                    key={c.id}
+                    aria-pressed={category === c.id}
+                    onClick={() => setCategory(c.id)}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+              <div className="frame-choices" aria-label="프레임 선택">
+                {frames
+                  .filter((f) => f.category === category)
+                  .map((f) => (
+                    <button
+                      key={f.name}
+                      className={frame === f ? "selected-frame" : ""}
+                      aria-pressed={frame === f}
+                      onClick={() => setFrame(f)}
+                    >
+                      <span
+                        style={{ background: f.color, borderColor: f.ink }}
+                      />
+                      {f.name}
+                    </button>
+                  ))}
+                {!frames.some((f) => f.category === category) && (
+                  <p className="empty-frames">
+                    등록된 프레임이 없어요. 프레임을 추가하면 여기에 표시돼요.
+                  </p>
+                )}
+              </div>
+              <p className="current-frame">적용 중 · {frame.name}</p>
+            </div>
             <p className="selection-guide">
               바꿀 자리를 누른 뒤, 아래에서 사진을 골라 주세요.
             </p>
@@ -512,7 +546,7 @@ export const PhotoboothPage = () => {
               >
                 <img
                   src={preview || frame.template}
-                  alt="선택한 사진이 담긴 우테코 네컷"
+                  alt={`선택한 사진이 담긴 ${frame.name} 네컷`}
                 />
                 {layout.slots.map((slot, i) => (
                   <button
@@ -596,7 +630,7 @@ export const PhotoboothPage = () => {
                 disabled={selected.length !== 4}
                 onClick={() => setChoosing(false)}
               >
-                프레임 고르기 →
+                완성 사진 확인 →
               </button>
             </div>
           </section>
@@ -611,88 +645,15 @@ export const PhotoboothPage = () => {
                 사진 바꾸기
               </button>
             </div>
-            <div className="restored-frames">
-              <h2>프레임 선택</h2>
-              <div className="booth-actions">
-                {[...frames, custom].map((f, i) => (
-                  <button
-                    disabled={busy || uploadStarted}
-                    key={i}
-                    aria-pressed={frame === f}
-                    className={
-                      frame === f
-                        ? "frame-option selected-frame"
-                        : "frame-option"
-                    }
-
-                    onClick={() => setFrame(f)}
-                  >
-                    {f.name}
-                  </button>
-                ))}
-              </div>
-              <details>
-                <summary>팀 프레임 꾸미기</summary>
-                <fieldset disabled={busy || uploadStarted}>
-                  <label>
-                    팀 이름
-                    <input
-                      maxLength={20}
-                      value={custom.name}
-                      onChange={(e) => {
-                        const f = { ...custom, name: e.target.value };
-                        setCustom(f);
-                        setFrame(f);
-                      }}
-                    />
-                  </label>
-                  <label>
-                    프레임 색
-                    <input
-                      type="color"
-                      value={custom.color}
-                      onChange={(e) => {
-                        const f = { ...custom, color: e.target.value };
-                        setCustom(f);
-                        setFrame(f);
-                      }}
-                    />
-                  </label>
-                  <label>
-                    글자 색
-                    <input
-                      type="color"
-                      value={custom.ink}
-                      onChange={(e) => {
-                        const f = { ...custom, ink: e.target.value };
-                        setCustom(f);
-                        setFrame(f);
-                      }}
-                    />
-                  </label>
-                  <label>
-                    로고 / 캐릭터
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const f = { ...custom, logo: objectUrl(file) };
-                          setCustom(f);
-                          setFrame(f);
-                        }
-                      }}
-                    />
-                  </label>
-                </fieldset>
-              </details>
-            </div>
             <aside className="booth-preview">
               {preview && selected.length === 4 ? (
                 <img src={preview} alt="합성된 인생네컷 미리보기" />
               ) : (
-                <p>{selected.length === 4 ? "프레임을 적용하고 있어요…" : "사진 네 장을 선택해 주세요."}</p>
+                <p>
+                  {selected.length === 4
+                    ? "프레임을 적용하고 있어요…"
+                    : "사진 네 장을 선택해 주세요."}
+                </p>
               )}
               {preview && selected.length === 4 && (
                 <a

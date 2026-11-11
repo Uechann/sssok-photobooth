@@ -165,7 +165,7 @@ export const PhotoboothPage = () => {
     try {
       for (let i = 3; i > 0; i--) {
         setCount(i);
-        await new Promise((r) => setTimeout(r, i === 1 ? 180 : 600));
+        await new Promise((r) => setTimeout(r, i === 1 ? 150 : 550));
       }
       const v = video.current;
       if (!v?.videoWidth)
@@ -191,6 +191,8 @@ export const PhotoboothPage = () => {
         c.width,
         c.height,
       );
+      // 프레임은 이미 캔버스에 담겼으니 느린 JPEG 인코딩 전에 카운트를 지운다.
+      setCount(0);
       addBlob(await canvasBlob(c), `booth-${crypto.randomUUID()}.jpg`);
     } catch (e) {
       setError((e as Error).message);

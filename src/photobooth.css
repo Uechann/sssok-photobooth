@@ -611,21 +611,35 @@ summary:focus-visible {
 .booth-capture > footer {
   display: none;
 }
+/* 뷰파인더가 화면 전체를 채우고, 상단바와 컨트롤은 그 위에 얹는다. */
 .capture-screen {
+  position: relative;
   height: 100%;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: #111;
 }
 .capture-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
-  padding: max(18px, env(safe-area-inset-top)) 24px 16px;
+  padding: max(18px, env(safe-area-inset-top)) 24px 28px;
   font-size: 16px;
   font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 3px #0009;
+  background: linear-gradient(#0009, #0000);
+  pointer-events: none;
+}
+.capture-topbar > * {
+  pointer-events: auto;
 }
 .capture-viewfinder {
-  min-height: 0;
-  position: relative;
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -635,7 +649,7 @@ summary:focus-visible {
   width: 100%;
   height: 100%;
   min-height: 0;
-  object-fit: contain;
+  object-fit: cover;
   /* 실제 변환은 CAPTURE_ZOOM과 함께 인라인 style로 지정한다. */
   transform: scaleX(-1);
 }
@@ -643,7 +657,14 @@ summary:focus-visible {
   position: absolute;
 }
 .capture-bottom {
-  padding: 12px 24px max(20px, env(safe-area-inset-bottom));
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 40px 24px max(20px, env(safe-area-inset-bottom));
+  color: white;
+  background: linear-gradient(#0000, #0008 28%, #000a);
 }
 .capture-filmstrip {
   display: flex;
@@ -1158,7 +1179,7 @@ summary:focus-visible {
 }
 .capture-topbar {
   padding-top: max(8px, env(safe-area-inset-top));
-  padding-bottom: 8px;
+  padding-bottom: 24px;
 }
 .capture-filmstrip {
   height: 44px;
@@ -1169,7 +1190,7 @@ summary:focus-visible {
   height: 40px;
 }
 .capture-bottom {
-  padding-top: 8px;
+  padding-top: 36px;
   padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 @media (orientation: landscape) and (min-width: 1000px) {

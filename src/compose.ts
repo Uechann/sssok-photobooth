@@ -1,18 +1,43 @@
 import { coverCrop } from "./photoFit";
 import { encodeJpeg } from "./imageEncoding";
-import oldTemplate from "./assets/sssok-frame.png";
-import template from "./assets/wooteco-frame.png";
-export const TEMPLATE_SIZE = { width: 1200, height: 1800 };
+import whiteFrame from "./assets/White · 4×6in@2x.png";
+import blackFrame from "./assets/Black · 4×6in@2x.png";
+import wootecoFrame from "./assets/wooteco-frame.png";
+import sssokFrame from "./assets/sssok-frame.webp";
+import kamjiFrame from "./assets/sssok_frame_kamji.webp";
+import luckyFrame from "./assets/image (5).webp";
+import friendsFrame from "./assets/image (6).webp";
+
+export interface Slot {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+export interface Size {
+  width: number;
+  height: number;
+}
+// 판형을 따로 적지 않은 프레임이 쓰는 기본값.
+export const TEMPLATE_SIZE: Size = { width: 1200, height: 1800 };
 // Printed order on the supplied frame: right top, right bottom, left top, left bottom.
-export const TEMPLATE_SLOTS = [
+export const TEMPLATE_SLOTS: Slot[] = [
   { x: 650, y: 126, w: 506, h: 614 },
   { x: 650, y: 767, w: 506, h: 614 },
   { x: 50, y: 424, w: 506, h: 614 },
   { x: 50, y: 1065, w: 506, h: 614 },
 ];
+const BASIC_SIZE: Size = { width: 768, height: 1152 };
+const BASIC_SLOTS: Slot[] = [
+  { x: 396, y: 32, w: 340, h: 400 },
+  { x: 396, y: 456, w: 340, h: 400 },
+  { x: 32, y: 240, w: 340, h: 400 },
+  { x: 32, y: 664, w: 340, h: 400 },
+];
+const SQUARE_SIZE: Size = { width: 1024, height: 1536 };
 export type FrameCategory = "basic" | "wooteco" | "characters" | "teams";
 export const frameCategories: { id: FrameCategory; name: string }[] = [
-  { id: "basic", name: "기본 검흰" },
+  { id: "basic", name: "기본 프레임" },
   { id: "wooteco", name: "우테코" },
   { id: "characters", name: "쏙지/깜지" },
   { id: "teams", name: "우테코 각 팀" },
@@ -23,30 +48,88 @@ export interface Frame {
   color: string;
   ink: string;
   template?: string;
+  /** 프레임 이미지 판형. 없으면 TEMPLATE_SIZE. */
+  size?: Size;
+  /** 사진이 들어갈 네 칸. 없으면 TEMPLATE_SLOTS. */
+  slots?: Slot[];
+  /** 사진 자리를 채운 색. 이 색인 부분만 뚫는다. 없으면 흰색. */
+  hole?: [number, number, number];
   logo?: string;
 }
 // Add each supplied frame here with its category. Empty categories stay empty.
 export const frames: Frame[] = [
-  { category: "basic", name: "화이트", color: "#fff", ink: "#1a1a1a" },
-  { category: "basic", name: "블랙", color: "#1a1a1a", ink: "#fff" },
+  {
+    category: "basic",
+    name: "화이트",
+    template: whiteFrame,
+    size: BASIC_SIZE,
+    slots: BASIC_SLOTS,
+    hole: [217, 217, 217],
+    color: "#fff",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "basic",
+    name: "블랙",
+    template: blackFrame,
+    size: BASIC_SIZE,
+    slots: BASIC_SLOTS,
+    color: "#1a1a1a",
+    ink: "#fff",
+  },
   {
     category: "wooteco",
     name: "우테코 8기",
-    template,
+    template: wootecoFrame,
     color: "#fff",
     ink: "#1a1a1a",
   },
   {
     category: "characters",
     name: "쏙지",
-    template: oldTemplate,
+    template: sssokFrame,
     color: "#ff9654",
     ink: "#281a14",
+  },
+  {
+    category: "characters",
+    name: "깜지",
+    template: kamjiFrame,
+    color: "#2f2d36",
+    ink: "#f6f3ea",
+  },
+  {
+    category: "characters",
+    name: "행운을 쏙쏙",
+    template: luckyFrame,
+    size: SQUARE_SIZE,
+    slots: [
+      { x: 47, y: 120, w: 454, h: 535 },
+      { x: 523, y: 118, w: 450, h: 533 },
+      { x: 48, y: 826, w: 453, h: 577 },
+      { x: 523, y: 827, w: 452, h: 575 },
+    ],
+    color: "#eff6b0",
+    ink: "#2f4a16",
+  },
+  {
+    category: "characters",
+    name: "쏙지와 친구들",
+    template: friendsFrame,
+    size: SQUARE_SIZE,
+    slots: [
+      { x: 529, y: 122, w: 421, h: 490 },
+      { x: 529, y: 644, w: 421, h: 493 },
+      { x: 58, y: 379, w: 436, h: 494 },
+      { x: 58, y: 904, w: 436, h: 494 },
+    ],
+    color: "#fde171",
+    ink: "#3a2a06",
   },
 ];
 export function frameLayout(frame: Frame) {
   return frame.template
-    ? { size: TEMPLATE_SIZE, slots: TEMPLATE_SLOTS }
+    ? { size: frame.size ?? TEMPLATE_SIZE, slots: frame.slots ?? TEMPLATE_SLOTS }
     : {
         size: { width: 720, height: 2180 },
         slots: Array.from({ length: 4 }, (_, i) => ({
@@ -66,17 +149,20 @@ export const loadImage = (src: string): Promise<HTMLImageElement> =>
   });
 export { encodeJpeg as canvasBlob } from "./imageEncoding";
 const overlays = new Map<string, Promise<HTMLCanvasElement>>();
-function frameOverlay(source: string) {
+function frameOverlay(frame: Frame) {
+  const source = frame.template!;
   const cached = overlays.get(source);
   if (cached) return cached;
+  const { size, slots } = frameLayout(frame);
+  const [holeR, holeG, holeB] = frame.hole ?? [255, 255, 255];
   const result = loadImage(source)
     .then((image) => {
       const canvas = document.createElement("canvas");
-      Object.assign(canvas, TEMPLATE_SIZE);
+      Object.assign(canvas, size);
       const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(image, 0, 0);
-      // Only remove the connected white photo area. Closed doodles retain their white fill.
-      for (const slot of TEMPLATE_SLOTS) {
+      ctx.drawImage(image, 0, 0, size.width, size.height);
+      // Only remove the connected photo area. Closed doodles retain their fill.
+      for (const slot of slots) {
         const area = ctx.getImageData(slot.x, slot.y, slot.w, slot.h),
           data = area.data;
         const visited = new Uint8Array(slot.w * slot.h);
@@ -88,7 +174,12 @@ function frameOverlay(source: string) {
           if (visited[pixel]) continue;
           visited[pixel] = 1;
           const at = pixel * 4;
-          if (Math.min(data[at], data[at + 1], data[at + 2]) < 235) continue;
+          const gap = Math.max(
+            Math.abs(data[at] - holeR),
+            Math.abs(data[at + 1] - holeG),
+            Math.abs(data[at + 2] - holeB),
+          );
+          if (gap > 20) continue;
           data[at + 3] = 0;
           const x = pixel % slot.w,
             y = Math.floor(pixel / slot.w);
@@ -139,7 +230,7 @@ export async function compose(
       slot.h,
     );
   });
-  if (frame.template) ctx.drawImage(await frameOverlay(frame.template), 0, 0);
+  if (frame.template) ctx.drawImage(await frameOverlay(frame), 0, 0);
   else {
     ctx.fillStyle = frame.ink;
     ctx.textAlign = "center";

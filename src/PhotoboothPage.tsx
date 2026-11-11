@@ -36,7 +36,7 @@ import "./photobooth.css";
 type Photo = { url: string; file: File };
 // 광각 카메라의 넓은 화각을 중앙 크롭으로 좁혀 일반 화각처럼 보이게 한다.
 // 뷰파인더와 실제 촬영에 같은 값을 써서 보이는 그대로 찍힌다.
-const CAPTURE_ZOOM = 1.3;
+const CAPTURE_ZOOM = 1.6;
 export const PhotoboothPage = () => {
   const [step, setStep] = useState<"welcome" | "capture" | "design" | "done">(
     "welcome",

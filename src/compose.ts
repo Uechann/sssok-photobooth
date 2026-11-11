@@ -8,15 +8,15 @@ import kamjiFrame from "./assets/sssok_frame_kamji.webp";
 import luckyFrame from "./assets/image (5).webp";
 import friendsFrame from "./assets/image (6).webp";
 import devikaFrame from "./assets/01_devika_frame.webp";
-import noteFrame from "./assets/02_wave_logo_frame.webp";
-import deinomiFrame from "./assets/03_bluecat_frame.webp";
+import noteFrame from "./assets/02_wave_logo_frame.png";
+import deinomiFrame from "./assets/03_bluecat_frame.png";
 import yesulinFrame from "./assets/04_yesul_in_frame.webp";
 import chalkakFrame from "./assets/05_chalkak_frame.webp";
 import jarihanaFrame from "./assets/06_chair_frame.webp";
 import careerformFrame from "./assets/07_capybara_frame.webp";
-import shoutoutFrame from "./assets/08_megaphone_frame.webp";
+import shoutoutFrame from "./assets/08_megaphone_frame.png";
 import chaekchekFrame from "./assets/09_bird_frame.webp";
-import gachigachaFrame from "./assets/10_bubble_frame.webp";
+import gachigachaFrame from "./assets/10_bubble_frame.png";
 import salmonFrame from "./assets/11_salmonbus_frame.webp";
 
 export interface Slot {

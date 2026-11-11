@@ -167,14 +167,14 @@ export const frames: Frame[] = [
   },
   {
     category: "teams",
-    name: "찰칵",
+    name: "찰캌",
     template: chalkakFrame,
     color: "#faf8f4",
     ink: "#1a1a1a",
   },
   {
     category: "teams",
-    name: "자리하나",
+    name: "자리하나?",
     template: jarihanaFrame,
     color: "#e2f7f2",
     ink: "#1a1a1a",
@@ -188,7 +188,7 @@ export const frames: Frame[] = [
   },
   {
     category: "teams",
-    name: "샤라웃",
+    name: "샤라웆",
     template: shoutoutFrame,
     color: "#2677f9",
     ink: "#ffffff",

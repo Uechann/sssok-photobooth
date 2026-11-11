@@ -636,6 +636,7 @@ summary:focus-visible {
   height: 100%;
   min-height: 0;
   object-fit: contain;
+  /* 실제 변환은 CAPTURE_ZOOM과 함께 인라인 style로 지정한다. */
   transform: scaleX(-1);
 }
 .capture-viewfinder > button {

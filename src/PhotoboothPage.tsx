@@ -34,6 +34,9 @@ import {
 import "./photobooth.css";
 
 type Photo = { url: string; file: File };
+// 광각 카메라의 넓은 화각을 중앙 크롭으로 좁혀 일반 화각처럼 보이게 한다.
+// 뷰파인더와 실제 촬영에 같은 값을 써서 보이는 그대로 찍힌다.
+const CAPTURE_ZOOM = 1.3;
 export const PhotoboothPage = () => {
   const [step, setStep] = useState<"welcome" | "capture" | "design" | "done">(
     "welcome",
@@ -127,6 +130,7 @@ export const PhotoboothPage = () => {
           facingMode: "user",
           width: { ideal: 1600 },
           height: { ideal: 1200 },
+          aspectRatio: { ideal: 4 / 3 },
         },
         audio: false,
       });
@@ -168,13 +172,25 @@ export const PhotoboothPage = () => {
         throw new Error(
           "카메라가 준비되지 않았어요. 사진을 불러오거나 카메라를 다시 켜 주세요.",
         );
+      const sw = v.videoWidth / CAPTURE_ZOOM;
+      const sh = v.videoHeight / CAPTURE_ZOOM;
       const c = document.createElement("canvas");
-      c.width = v.videoWidth;
-      c.height = v.videoHeight;
+      c.width = Math.round(sw);
+      c.height = Math.round(sh);
       const ctx = c.getContext("2d")!;
       ctx.translate(c.width, 0);
       ctx.scale(-1, 1);
-      ctx.drawImage(v, 0, 0);
+      ctx.drawImage(
+        v,
+        (v.videoWidth - sw) / 2,
+        (v.videoHeight - sh) / 2,
+        sw,
+        sh,
+        0,
+        0,
+        c.width,
+        c.height,
+      );
       addBlob(await canvasBlob(c), `booth-${crypto.randomUUID()}.jpg`);
     } catch (e) {
       setError((e as Error).message);
@@ -399,7 +415,13 @@ export const PhotoboothPage = () => {
             <span aria-live="polite">{photos.length}장</span>
           </div>
           <div className="capture-viewfinder">
-            <video ref={video} autoPlay muted playsInline />
+            <video
+              ref={video}
+              autoPlay
+              muted
+              playsInline
+              style={{ transform: `scaleX(-1) scale(${CAPTURE_ZOOM})` }}
+            />
             {!cameraReady && (
               <button disabled={busy} onClick={() => void start()}>
                 카메라 켜기

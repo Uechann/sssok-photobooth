@@ -1013,12 +1013,11 @@ summary:focus-visible {
 }
 .selection-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
   gap: 24px;
-  background: #f4f2ee;
-  border-radius: 20px;
-  padding: 18px;
+  padding: 4px 0;
+  --photo-stage-height: min(34dvh, 400px);
 }
 .live-frame {
   position: relative;
@@ -1069,19 +1068,28 @@ summary:focus-visible {
 }
 .focused-photo {
   min-width: 0;
+  height: var(--photo-stage-height);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   text-align: center;
 }
 .focused-photo > img {
-  width: 100%;
-  height: min(28dvh, 340px);
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(var(--photo-stage-height) - 28px);
+  min-height: 0;
   object-fit: contain;
-  border-radius: 12px;
-  background: #e9e4dc;
+  border-radius: 4px;
 }
 .focused-photo > span {
   display: block;
   font-size: 13px;
-  margin-top: 12px;
+  margin-top: 0;
   color: #4a4843;
 }
 .gallery-label {
@@ -1225,13 +1233,11 @@ summary:focus-visible {
   }
   .selection-stage {
     gap: 12px;
-    padding: 10px;
+    padding: 4px 0;
+    --photo-stage-height: min(30dvh, 300px);
   }
   .live-frame {
     height: 28dvh;
-  }
-  .focused-photo > img {
-    height: 21dvh;
   }
   .focused-photo > span {
     font-size: 11px;
@@ -1302,10 +1308,7 @@ summary:focus-visible {
   padding: 12px 0;
 }
 .gallery-selection .live-frame {
-  height: min(30dvh, 360px);
-}
-.gallery-selection .focused-photo > img {
-  height: min(18dvh, 210px);
+  height: var(--photo-stage-height);
 }
 .gallery-selection .photo-library {
   max-height: 21dvh;
@@ -1313,12 +1316,6 @@ summary:focus-visible {
 @media (max-width: 600px) {
   .booth .frame-categories button {
     font-size: 11px;
-  }
-  .gallery-selection .live-frame {
-    height: 25dvh;
-  }
-  .gallery-selection .focused-photo > img {
-    height: 14dvh;
   }
   .frame-browser {
     padding: 8px;

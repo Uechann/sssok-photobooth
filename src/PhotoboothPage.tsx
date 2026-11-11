@@ -165,7 +165,7 @@ export const PhotoboothPage = () => {
     try {
       for (let i = 3; i > 0; i--) {
         setCount(i);
-        await new Promise((r) => setTimeout(r, 700));
+        await new Promise((r) => setTimeout(r, i === 1 ? 180 : 600));
       }
       const v = video.current;
       if (!v?.videoWidth)

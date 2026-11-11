@@ -7,6 +7,17 @@ import sssokFrame from "./assets/sssok-frame.webp";
 import kamjiFrame from "./assets/sssok_frame_kamji.webp";
 import luckyFrame from "./assets/image (5).webp";
 import friendsFrame from "./assets/image (6).webp";
+import devikaFrame from "./assets/01_devika_frame.webp";
+import noteFrame from "./assets/02_wave_logo_frame.webp";
+import deinomiFrame from "./assets/03_bluecat_frame.webp";
+import yesulinFrame from "./assets/04_yesul_in_frame.webp";
+import chalkakFrame from "./assets/05_chalkak_frame.webp";
+import jarihanaFrame from "./assets/06_chair_frame.webp";
+import careerformFrame from "./assets/07_capybara_frame.webp";
+import shoutoutFrame from "./assets/08_megaphone_frame.webp";
+import chaekchekFrame from "./assets/09_bird_frame.webp";
+import gachigachaFrame from "./assets/10_bubble_frame.webp";
+import salmonFrame from "./assets/11_salmonbus_frame.webp";
 
 export interface Slot {
   x: number;
@@ -125,6 +136,83 @@ export const frames: Frame[] = [
     ],
     color: "#fde171",
     ink: "#3a2a06",
+  },
+  {
+    category: "teams",
+    name: "데비카",
+    template: devikaFrame,
+    color: "#e4dfd5",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "노트",
+    template: noteFrame,
+    color: "#1d2223",
+    ink: "#ffffff",
+  },
+  {
+    category: "teams",
+    name: "데이노미",
+    template: deinomiFrame,
+    color: "#fbf3ea",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "예술인",
+    template: yesulinFrame,
+    color: "#0c2c56",
+    ink: "#ffffff",
+  },
+  {
+    category: "teams",
+    name: "찰칵",
+    template: chalkakFrame,
+    color: "#faf8f4",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "자리하나",
+    template: jarihanaFrame,
+    color: "#e2f7f2",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "커리어폼",
+    template: careerformFrame,
+    color: "#a6e0fa",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "샤라웃",
+    template: shoutoutFrame,
+    color: "#2677f9",
+    ink: "#ffffff",
+  },
+  {
+    category: "teams",
+    name: "책췍",
+    template: chaekchekFrame,
+    color: "#ff8000",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "가치가챠",
+    template: gachigachaFrame,
+    color: "#95ccf5",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "연어",
+    template: salmonFrame,
+    color: "#d75c4a",
+    ink: "#ffffff",
   },
 ];
 export function frameLayout(frame: Frame) {

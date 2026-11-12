@@ -241,7 +241,7 @@ export const frames: Frame[] = [
   },
   {
     category: "teams",
-    name: "총총",
+    name: "총총1",
     template: chongchongFrame,
     color: "#2fb968",
     ink: "#ffffff",
@@ -253,10 +253,10 @@ export const frames: Frame[] = [
     // 1024x1536 판형이고 칸 크기도 제각각이라 전용 좌표를 쓴다.
     size: { width: 1024, height: 1536 },
     slots: [
-      { x: 526, y: 97, w: 429, h: 517 },
-      { x: 519, y: 699, w: 435, h: 402 },
-      { x: 53, y: 358, w: 421, h: 517 },
-      { x: 53, y: 896, w: 421, h: 512 },
+      { x: 552, y: 110, w: 432, h: 524 },
+      { x: 552, y: 655, w: 432, h: 524 },
+      { x: 44, y: 362, w: 433, h: 526 },
+      { x: 44, y: 912, w: 433, h: 522 },
     ],
     color: "#c2f58c",
     ink: "#1a4d2e",

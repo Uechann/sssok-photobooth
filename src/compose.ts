@@ -276,6 +276,13 @@ export const frames: Frame[] = [
     category: "teams",
     name: "히유",
     template: hiyuFrame,
+    // 다른 프레임보다 칸이 작고 위쪽에 붙어 있어 전용 좌표를 쓴다.
+    slots: [
+      { x: 653, y: 113, w: 500, h: 485 },
+      { x: 653, y: 627, w: 500, h: 485 },
+      { x: 53, y: 303, w: 500, h: 485 },
+      { x: 53, y: 817, w: 500, h: 485 },
+    ],
     color: "#eceef2",
     ink: "#1a1a1a",
   },

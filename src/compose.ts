@@ -243,8 +243,15 @@ export const frames: Frame[] = [
     category: "teams",
     name: "총총1",
     template: chongchongFrame,
-    color: "#2fb968",
-    ink: "#ffffff",
+    size: { width: 1024, height: 1536 },
+    slots: [
+      { x: 527, y: 98, w: 426, h: 515 },
+      { x: 520, y: 700, w: 433, h: 400 },
+      { x: 54, y: 359, w: 419, h: 515 },
+      { x: 54, y: 897, w: 420, h: 510 },
+    ],
+    color: "#c2f58c",
+    ink: "#1a4d2e",
   },
   {
     category: "teams",

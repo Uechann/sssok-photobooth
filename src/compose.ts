@@ -23,6 +23,7 @@ import bibbidiFrame from "./assets/14_wedding_frame.png";
 import chongchongFrame from "./assets/15_chongchong_frame.png";
 import jachwiFrame from "./assets/16_jachwi_frame.png";
 import parkingFrame from "./assets/17_parking_frame.png";
+import mapmoryFrame from "./assets/18_mapmory_frame.png";
 
 export interface Slot {
   x: number;
@@ -253,6 +254,13 @@ export const frames: Frame[] = [
     template: parkingFrame,
     color: "#4553d6",
     ink: "#ffffff",
+  },
+  {
+    category: "teams",
+    name: "맵모리",
+    template: mapmoryFrame,
+    color: "#dff0e7",
+    ink: "#2f6b45",
   },
 ];
 export function frameLayout(frame: Frame) {

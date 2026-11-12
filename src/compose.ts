@@ -1,3 +1,4 @@
+import yeogidamFrame from "./assets/yeogidam-frame.png";
 import { coverCrop } from "./photoFit";
 import { encodeJpeg } from "./imageEncoding";
 import whiteFrame from "./assets/white-frame.png";
@@ -330,6 +331,20 @@ export const frames: Frame[] = [
     ],
     color: "#f0fbf3",
     ink: "#12a150",
+  },
+  {
+    category: "teams",
+    name: "여기담",
+    template: yeogidamFrame,
+    size: { width: 1024, height: 1536 },
+    slots: [
+      { x: 541, y: 122, w: 432, h: 493 },
+      { x: 541, y: 647, w: 432, h: 493 },
+      { x: 51, y: 358, w: 427, h: 515 },
+      { x: 51, y: 906, w: 427, h: 515 },
+    ],
+    color: "#dce1fa",
+    ink: "#15151b",
   },
 ];
 export function frameLayout(frame: Frame) {

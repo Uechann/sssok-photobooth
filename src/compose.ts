@@ -202,7 +202,7 @@ export const frames: Frame[] = [
     category: "teams",
     name: "책췍",
     template: chaekchekFrame,
-    color: "#ff8000",
+    color: "#f2efe6",
     ink: "#1a1a1a",
   },
   {

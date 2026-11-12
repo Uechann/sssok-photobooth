@@ -19,6 +19,10 @@ import chaekchekFrame from "./assets/09_bird_frame.png";
 import gachigachaFrame from "./assets/10_bubble_frame.png";
 import salmonFrame from "./assets/11_salmonbus_frame.png";
 import harudleFrame from "./assets/12_harudle_frame.png";
+import bibbidiFrame from "./assets/14_wedding_frame.png";
+import chongchongFrame from "./assets/15_chongchong_frame.png";
+import jachwiFrame from "./assets/16_jachwi_frame.png";
+import parkingFrame from "./assets/17_parking_frame.png";
 
 export interface Slot {
   x: number;
@@ -221,6 +225,34 @@ export const frames: Frame[] = [
     template: harudleFrame,
     color: "#c9b3f7",
     ink: "#2b1b4d",
+  },
+  {
+    category: "teams",
+    name: "비비디",
+    template: bibbidiFrame,
+    color: "#fbe6a2",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "총총",
+    template: chongchongFrame,
+    color: "#2fb968",
+    ink: "#ffffff",
+  },
+  {
+    category: "teams",
+    name: "자취선배",
+    template: jachwiFrame,
+    color: "#74a9f7",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "주차의민족",
+    template: parkingFrame,
+    color: "#4553d6",
+    ink: "#ffffff",
   },
 ];
 export function frameLayout(frame: Frame) {

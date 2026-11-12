@@ -1021,17 +1021,19 @@ summary:focus-visible {
 }
 .selection-stage {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
+  /* 사파리는 높이와 aspect-ratio로만 크기가 정해지는 상자의 폭을 max-content
+     트랙에서 0으로 계산한다. 그래서 폭을 먼저 정하고 높이를 비율로 얻는다. */
+  grid-template-columns: var(--frame-stage-width) minmax(0, 1fr);
   align-items: center;
   gap: 24px;
   padding: 4px 0;
+  --frame-stage-width: clamp(150px, 24%, 290px);
   --photo-stage-height: min(34dvh, 400px);
 }
 .live-frame {
   position: relative;
-  width: auto;
+  width: 100%;
   aspect-ratio: 2/3;
-  height: min(36dvh, 440px);
   max-width: 100%;
   margin: auto;
   background: white;
@@ -1040,7 +1042,7 @@ summary:focus-visible {
 .live-frame > img {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
 }
 .booth .frame-slot {
@@ -1243,9 +1245,7 @@ summary:focus-visible {
     gap: 12px;
     padding: 4px 0;
     --photo-stage-height: min(30dvh, 300px);
-  }
-  .live-frame {
-    height: 28dvh;
+    --frame-stage-width: clamp(130px, 43%, 200px);
   }
   .focused-photo > span {
     font-size: 11px;
@@ -1316,7 +1316,7 @@ summary:focus-visible {
   padding: 12px 0;
 }
 .gallery-selection .live-frame {
-  height: var(--photo-stage-height);
+  height: auto;
 }
 .gallery-selection .photo-library {
   max-height: 21dvh;
@@ -1327,5 +1327,13 @@ summary:focus-visible {
   }
   .frame-browser {
     padding: 8px;
+  }
+}
+
+/* 세로로 세운 아이패드에서는 네컷 미리보기를 더 크게 본다.
+   .selection-stage 기본값보다 뒤에 와야 적용된다. */
+@media (orientation: portrait) and (min-width: 701px) {
+  .selection-stage {
+    --frame-stage-width: clamp(220px, 46%, 360px);
   }
 }

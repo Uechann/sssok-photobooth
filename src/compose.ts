@@ -24,6 +24,9 @@ import chongchongFrame from "./assets/15_chongchong_frame.png";
 import jachwiFrame from "./assets/16_jachwi_frame.png";
 import parkingFrame from "./assets/17_parking_frame.png";
 import mapmoryFrame from "./assets/18_mapmory_frame.png";
+import rilogFrame from "./assets/19_rilog_frame.png";
+import hiyuFrame from "./assets/20_hiyu_frame.png";
+import settyFrame from "./assets/21_setty_frame.png";
 
 export interface Slot {
   x: number;
@@ -261,6 +264,27 @@ export const frames: Frame[] = [
     template: mapmoryFrame,
     color: "#dff0e7",
     ink: "#2f6b45",
+  },
+  {
+    category: "teams",
+    name: "리로그",
+    template: rilogFrame,
+    color: "#fbfaf2",
+    ink: "#141c52",
+  },
+  {
+    category: "teams",
+    name: "히유",
+    template: hiyuFrame,
+    color: "#eceef2",
+    ink: "#1a1a1a",
+  },
+  {
+    category: "teams",
+    name: "세티",
+    template: settyFrame,
+    color: "#e7f0ff",
+    ink: "#1f5fe0",
   },
 ];
 export function frameLayout(frame: Frame) {

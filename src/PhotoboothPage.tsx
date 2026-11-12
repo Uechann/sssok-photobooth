@@ -855,12 +855,6 @@ export const PhotoboothPage = () => {
               </button>
             </div>
           )}
-          <p>
-            휴대폰 카메라로 QR을 스캔하거나, 쏙 앱 ‘링크·코드로 참여’에 위 방
-            코드를 입력해 주세요.
-            <br />
-            원본과 네컷을 모두 저장할 수 있어요.
-          </p>
           <a href={shareUrl} target="_blank" rel="noreferrer">
             사진방 열기 ↗
           </a>

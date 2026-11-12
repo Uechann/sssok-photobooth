@@ -28,6 +28,7 @@ import mapmoryFrame from "./assets/18_mapmory_frame.png";
 import rilogFrame from "./assets/19_rilog_frame.png";
 import hiyuFrame from "./assets/20_hiyu_frame.png";
 import settyFrame from "./assets/21_setty_frame.png";
+import dukkeobiFrame from "./assets/22_bokdeokbang_frame.png";
 
 export interface Slot {
   x: number;
@@ -308,6 +309,20 @@ export const frames: Frame[] = [
     template: settyFrame,
     color: "#e7f0ff",
     ink: "#1f5fe0",
+  },
+  {
+    category: "teams",
+    name: "두꺼비집",
+    template: dukkeobiFrame,
+    // 지붕을 남기려고 사진 칸만 따로 잡는다.
+    slots: [
+      { x: 650, y: 250, w: 506, h: 556 },
+      { x: 650, y: 850, w: 506, h: 556 },
+      { x: 50, y: 530, w: 506, h: 556 },
+      { x: 50, y: 1130, w: 506, h: 556 },
+    ],
+    color: "#f0fbf3",
+    ink: "#12a150",
   },
 ];
 export function frameLayout(frame: Frame) {

@@ -39,9 +39,11 @@ type Photo = { url: string; file: File };
 // 광각 카메라의 넓은 화각을 중앙 크롭으로 좁혀 일반 화각처럼 보이게 한다.
 // 뷰파인더와 실제 촬영에 같은 값을 써서 보이는 그대로 찍힌다.
 const CAPTURE_ZOOM = 1.6;
-// 한 번만 누르면 알아서 다 찍히도록: 5초 간격으로 10장.
-const BURST_SHOTS = 10;
+// 한 번만 누르면 알아서 다 찍히도록: 5초 간격으로 8장.
+const BURST_SHOTS = 8;
 const BURST_INTERVAL = 5;
+// 셔터 화면 반짝임이 보이는 시간(ms).
+const FLASH_MS = 260;
 export const PhotoboothPage = () => {
   const [step, setStep] = useState<"welcome" | "capture" | "design" | "done">(
     "welcome",
@@ -61,7 +63,10 @@ export const PhotoboothPage = () => {
   const [error, setError] = useState("");
   const [count, setCount] = useState(0);
   const [shotNo, setShotNo] = useState(0);
+  const [flash, setFlash] = useState(false);
   const burst = useRef(0);
+  const audio = useRef<AudioContext | null>(null);
+  const flashTimer = useRef<number | null>(null);
   const [status, setStatus] = useState("");
   const [shareUrl, setShareUrl] = useState("");
   const shareOrigin = SERVICE_ORIGIN;
@@ -91,6 +96,8 @@ export const PhotoboothPage = () => {
       burst.current++;
       stream.current?.getTracks().forEach((t) => t.stop());
       urls.current.forEach(URL.revokeObjectURL);
+      if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+      void audio.current?.close().catch(() => {});
     },
     [],
   );
@@ -166,6 +173,59 @@ export const PhotoboothPage = () => {
         file: new File([blob], name, { type: blob.type }),
       },
     ]);
+  // 모바일 브라우저는 사용자가 버튼을 누른 순간에만 오디오를 깨울 수 있어,
+  // 촬영 버튼을 누를 때 미리 오디오 컨텍스트를 만들어 둔다.
+  const primeAudio = () => {
+    try {
+      const Ctor =
+        window.AudioContext ??
+        (window as unknown as { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext;
+      if (!Ctor) return;
+      audio.current ??= new Ctor();
+      void audio.current.resume().catch(() => {});
+    } catch {
+      // 소리를 못 내는 환경에서는 조용히 촬영한다.
+    }
+  };
+  // "찰-칵": 막이 열리고 닫히는 짧은 노이즈 두 번으로 셔터 소리를 만든다.
+  const playShutter = () => {
+    const ctx = audio.current;
+    if (!ctx || ctx.state !== "running") return;
+    const now = ctx.currentTime;
+    const burstAt = (at: number, seconds: number, level: number, hz: number) => {
+      const frames = Math.max(1, Math.round(ctx.sampleRate * seconds));
+      const buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < frames; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / frames) ** 3;
+      }
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const band = ctx.createBiquadFilter();
+      band.type = "bandpass";
+      band.frequency.value = hz;
+      band.Q.value = 0.8;
+      const amp = ctx.createGain();
+      amp.gain.value = level;
+      source.connect(band).connect(amp).connect(ctx.destination);
+      source.start(now + at);
+      source.stop(now + at + seconds);
+    };
+    burstAt(0, 0.05, 0.55, 2600);
+    burstAt(0.075, 0.09, 0.35, 1400);
+  };
+  // 찍히는 순간 화면이 하얗게 번쩍이고 소리와 진동이 함께 난다.
+  const fireShutter = () => {
+    playShutter();
+    navigator.vibrate?.(20);
+    setFlash(true);
+    if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => {
+      flashTimer.current = null;
+      setFlash(false);
+    }, FLASH_MS);
+  };
   const snap = async () => {
     const v = video.current;
     if (!v?.videoWidth)
@@ -191,8 +251,10 @@ export const PhotoboothPage = () => {
       c.width,
       c.height,
     );
-    // 프레임은 이미 캔버스에 담겼으니 느린 JPEG 인코딩 전에 카운트를 지운다.
+    // 프레임은 이미 캔버스에 담겼으니 느린 JPEG 인코딩 전에
+    // 카운트를 지우고 바로 셔터 효과를 낸다.
     setCount(0);
+    fireShutter();
     const blob = await canvasBlob(c);
     // 아이패드 사파리의 캔버스 메모리를 아끼려고 바로 반납한다.
     releaseCanvas(c);
@@ -203,10 +265,11 @@ export const PhotoboothPage = () => {
     setCount(0);
     setShotNo(0);
   };
-  // 한 번 누르면 5초 간격으로 10장을 알아서 찍고 사진 선택으로 넘어간다.
+  // 한 번 누르면 5초 간격으로 8장을 알아서 찍고 사진 선택으로 넘어간다.
   const shoot = async () => {
     if (lock.current) return;
     lock.current = true;
+    primeAudio();
     setBusy(true);
     setError("");
     const run = ++burst.current;
@@ -445,7 +508,7 @@ export const PhotoboothPage = () => {
             </button>
             <span aria-live="polite">
               {shotNo > 0
-                ? `${shotNo} / ${BURST_SHOTS}장째`
+                ? `${shotNo} / ${BURST_SHOTS}장째 · ${BURST_SHOTS - shotNo + 1}장 남음`
                 : `${photos.length}장`}
             </span>
           </div>
@@ -462,11 +525,17 @@ export const PhotoboothPage = () => {
                 카메라 켜기
               </button>
             )}
+            {shotNo > 0 && (
+              <span className="capture-remaining" aria-live="polite">
+                {BURST_SHOTS - shotNo + 1}장 남음
+              </span>
+            )}
             {count > 0 && (
               <b className="booth-count" aria-live="assertive">
                 {count}
               </b>
             )}
+            {flash && <div className="capture-flash" aria-hidden="true" />}
           </div>
           <div className="capture-bottom">
             <div className="capture-filmstrip" aria-label="촬영한 사진">

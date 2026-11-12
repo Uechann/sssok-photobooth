@@ -656,6 +656,48 @@ summary:focus-visible {
 .capture-viewfinder > button {
   position: absolute;
 }
+/* 남은 장수를 뷰파인더 위에 띄워 둔다. */
+.capture-remaining {
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #000000a6;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* 찍히는 순간 하얗게 번쩍이는 셔터 효과. */
+.capture-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: #fff;
+  pointer-events: none;
+  animation: capture-flash 0.26s ease-out forwards;
+}
+@keyframes capture-flash {
+  0% {
+    opacity: 0.95;
+  }
+  35% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .capture-flash {
+    animation-duration: 0.12s;
+  }
+}
 .capture-bottom {
   position: absolute;
   left: 0;

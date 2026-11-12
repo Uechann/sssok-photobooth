@@ -1,23 +1,24 @@
 import { coverCrop } from "./photoFit";
 import { encodeJpeg } from "./imageEncoding";
-import whiteFrame from "./assets/White · 4×6in@2x.png";
-import blackFrame from "./assets/Black · 4×6in@2x.png";
+import whiteFrame from "./assets/white-frame.png";
+import blackFrame from "./assets/black-frame.png";
 import wootecoFrame from "./assets/wooteco-frame.png";
-import sssokFrame from "./assets/sssok-frame.webp";
-import kamjiFrame from "./assets/sssok_frame_kamji.webp";
-import luckyFrame from "./assets/image (5).webp";
-import friendsFrame from "./assets/image (6).webp";
-import devikaFrame from "./assets/01_devika_frame.webp";
+import sssokFrame from "./assets/sssok-frame.png";
+import kamjiFrame from "./assets/sssok_frame_kamji.png";
+import luckyFrame from "./assets/lucky-frame.png";
+import friendsFrame from "./assets/friends-frame.png";
+import devikaFrame from "./assets/01_devika_frame.png";
 import noteFrame from "./assets/02_wave_logo_frame.png";
 import deinomiFrame from "./assets/03_bluecat_frame.png";
-import yesulinFrame from "./assets/04_yesul_in_frame.webp";
-import chalkakFrame from "./assets/05_chalkak_frame.webp";
-import jarihanaFrame from "./assets/06_chair_frame.webp";
-import careerformFrame from "./assets/07_capybara_frame.webp";
+import yesulinFrame from "./assets/04_yesul_in_frame.png";
+import chalkakFrame from "./assets/05_chalkak_frame.png";
+import jarihanaFrame from "./assets/06_chair_frame.png";
+import careerformFrame from "./assets/07_capybara_frame.png";
 import shoutoutFrame from "./assets/08_megaphone_frame.png";
-import chaekchekFrame from "./assets/09_bird_frame.webp";
+import chaekchekFrame from "./assets/09_bird_frame.png";
 import gachigachaFrame from "./assets/10_bubble_frame.png";
-import salmonFrame from "./assets/11_salmonbus_frame.webp";
+import salmonFrame from "./assets/11_salmonbus_frame.png";
+import harudleFrame from "./assets/12_harudle_frame.png";
 
 export interface Slot {
   x: number;
@@ -214,6 +215,13 @@ export const frames: Frame[] = [
     color: "#d75c4a",
     ink: "#ffffff",
   },
+  {
+    category: "teams",
+    name: "하루들",
+    template: harudleFrame,
+    color: "#c9b3f7",
+    ink: "#2b1b4d",
+  },
 ];
 export function frameLayout(frame: Frame) {
   return frame.template
@@ -236,6 +244,14 @@ export const loadImage = (src: string): Promise<HTMLImageElement> =>
     image.src = src;
   });
 export { encodeJpeg as canvasBlob } from "./imageEncoding";
+// 캔버스를 다 쓰면 0×0으로 줄여 메모리를 돌려준다.
+// iPadOS 사파리는 탭마다 캔버스 메모리 한도가 낮아, 프레임을 넘겨볼 때마다
+// 1200×1800 캔버스가 쌓이면 프레임이 비거나 탭이 통째로 새로고침된다.
+export function releaseCanvas(canvas: HTMLCanvasElement) {
+  canvas.width = 0;
+  canvas.height = 0;
+}
+const OVERLAY_CACHE = 2;
 const overlays = new Map<string, Promise<HTMLCanvasElement>>();
 function frameOverlay(frame: Frame) {
   const source = frame.template!;
@@ -285,6 +301,13 @@ function frameOverlay(frame: Frame) {
       throw error;
     });
   overlays.set(source, result);
+  // 최근 프레임만 남기고 나머지 오버레이 캔버스는 바로 반납한다.
+  for (const key of [...overlays.keys()]) {
+    if (overlays.size <= OVERLAY_CACHE) break;
+    const evicted = overlays.get(key)!;
+    overlays.delete(key);
+    void evicted.then(releaseCanvas, () => {});
+  }
   return result;
 }
 export async function compose(
@@ -338,5 +361,7 @@ export async function compose(
       );
     }
   }
-  return encodeJpeg(canvas);
+  const blob = await encodeJpeg(canvas);
+  releaseCanvas(canvas);
+  return blob;
 }

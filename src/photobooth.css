@@ -716,6 +716,14 @@ summary:focus-visible {
   background: transparent;
   opacity: 0.45;
 }
+/* 자동 촬영 중에는 같은 버튼이 중지 버튼이 된다. */
+.booth .shutter.is-shooting {
+  border-color: #ff5a4d;
+}
+.shutter.is-shooting span {
+  border-radius: 8px;
+  background: #ff5a4d;
+}
 .booth .capture-options {
   margin: 0;
   border: 0;

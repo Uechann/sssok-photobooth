@@ -29,6 +29,7 @@ import {
   type FrameCategory,
   loadImage,
   frameLayout,
+  releaseCanvas,
   type Frame,
 } from "./compose";
 import "./photobooth.css";
@@ -37,6 +38,9 @@ type Photo = { url: string; file: File };
 // 광각 카메라의 넓은 화각을 중앙 크롭으로 좁혀 일반 화각처럼 보이게 한다.
 // 뷰파인더와 실제 촬영에 같은 값을 써서 보이는 그대로 찍힌다.
 const CAPTURE_ZOOM = 1.6;
+// 한 번만 누르면 알아서 다 찍히도록: 5초 간격으로 10장.
+const BURST_SHOTS = 10;
+const BURST_INTERVAL = 5;
 export const PhotoboothPage = () => {
   const [step, setStep] = useState<"welcome" | "capture" | "design" | "done">(
     "welcome",
@@ -55,6 +59,8 @@ export const PhotoboothPage = () => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [count, setCount] = useState(0);
+  const [shotNo, setShotNo] = useState(0);
+  const burst = useRef(0);
   const [status, setStatus] = useState("");
   const [shareUrl, setShareUrl] = useState("");
   const shareOrigin = SERVICE_ORIGIN;
@@ -73,6 +79,7 @@ export const PhotoboothPage = () => {
     return url;
   };
   const stop = () => {
+    burst.current++;
     stream.current?.getTracks().forEach((t) => t.stop());
     stream.current = null;
     setCameraReady(false);
@@ -80,6 +87,7 @@ export const PhotoboothPage = () => {
   useEffect(
     () => () => {
       generation.current++;
+      burst.current++;
       stream.current?.getTracks().forEach((t) => t.stop());
       urls.current.forEach(URL.revokeObjectURL);
     },
@@ -157,50 +165,72 @@ export const PhotoboothPage = () => {
         file: new File([blob], name, { type: blob.type }),
       },
     ]);
+  const snap = async () => {
+    const v = video.current;
+    if (!v?.videoWidth)
+      throw new Error(
+        "카메라가 준비되지 않았어요. 사진을 불러오거나 카메라를 다시 켜 주세요.",
+      );
+    const sw = v.videoWidth / CAPTURE_ZOOM;
+    const sh = v.videoHeight / CAPTURE_ZOOM;
+    const c = document.createElement("canvas");
+    c.width = Math.round(sw);
+    c.height = Math.round(sh);
+    const ctx = c.getContext("2d")!;
+    ctx.translate(c.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(
+      v,
+      (v.videoWidth - sw) / 2,
+      (v.videoHeight - sh) / 2,
+      sw,
+      sh,
+      0,
+      0,
+      c.width,
+      c.height,
+    );
+    // 프레임은 이미 캔버스에 담겼으니 느린 JPEG 인코딩 전에 카운트를 지운다.
+    setCount(0);
+    const blob = await canvasBlob(c);
+    // 아이패드 사파리의 캔버스 메모리를 아끼려고 바로 반납한다.
+    releaseCanvas(c);
+    addBlob(blob, `booth-${crypto.randomUUID()}.jpg`);
+  };
+  const stopBurst = () => {
+    burst.current++;
+    setCount(0);
+    setShotNo(0);
+  };
+  // 한 번 누르면 5초 간격으로 10장을 알아서 찍고 사진 선택으로 넘어간다.
   const shoot = async () => {
     if (lock.current) return;
     lock.current = true;
     setBusy(true);
     setError("");
+    const run = ++burst.current;
+    let completed = false;
     try {
-      for (let i = 3; i > 0; i--) {
-        setCount(i);
-        await new Promise((r) => setTimeout(r, 550));
+      for (let shot = 1; shot <= BURST_SHOTS; shot++) {
+        setShotNo(shot);
+        for (let i = BURST_INTERVAL; i > 0; i--) {
+          if (run !== burst.current) return;
+          setCount(i);
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+        if (run !== burst.current) return;
+        await snap();
       }
-      const v = video.current;
-      if (!v?.videoWidth)
-        throw new Error(
-          "카메라가 준비되지 않았어요. 사진을 불러오거나 카메라를 다시 켜 주세요.",
-        );
-      const sw = v.videoWidth / CAPTURE_ZOOM;
-      const sh = v.videoHeight / CAPTURE_ZOOM;
-      const c = document.createElement("canvas");
-      c.width = Math.round(sw);
-      c.height = Math.round(sh);
-      const ctx = c.getContext("2d")!;
-      ctx.translate(c.width, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(
-        v,
-        (v.videoWidth - sw) / 2,
-        (v.videoHeight - sh) / 2,
-        sw,
-        sh,
-        0,
-        0,
-        c.width,
-        c.height,
-      );
-      // 프레임은 이미 캔버스에 담겼으니 느린 JPEG 인코딩 전에 카운트를 지운다.
-      setCount(0);
-      addBlob(await canvasBlob(c), `booth-${crypto.randomUUID()}.jpg`);
+      completed = true;
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setCount(0);
+      setShotNo(0);
       setBusy(false);
       lock.current = false;
     }
+    if (completed) finish();
   };
   const sample = async () => {
     if (lock.current) return;
@@ -226,7 +256,9 @@ export const PhotoboothPage = () => {
         c.width = image.width;
         c.height = image.height;
         c.getContext("2d")!.drawImage(image, 0, 0);
-        addBlob(await canvasBlob(c), `sample-${Date.now()}-${i}.jpg`);
+        const blob = await canvasBlob(c);
+        releaseCanvas(c);
+        addBlob(blob, `sample-${Date.now()}-${i}.jpg`);
       }
     } catch {
       setError("샘플 사진을 불러오지 못했어요. 다시 시도해 주세요.");
@@ -402,7 +434,6 @@ export const PhotoboothPage = () => {
           <div className="capture-topbar">
             <button
               className="capture-close"
-              disabled={busy}
               onClick={() => {
                 generation.current++;
                 stop();
@@ -414,7 +445,11 @@ export const PhotoboothPage = () => {
             >
               닫기
             </button>
-            <span aria-live="polite">{photos.length}장</span>
+            <span aria-live="polite">
+              {shotNo > 0
+                ? `${shotNo} / ${BURST_SHOTS}장째`
+                : `${photos.length}장`}
+            </span>
           </div>
           <div className="capture-viewfinder">
             <video
@@ -440,7 +475,12 @@ export const PhotoboothPage = () => {
               {photos.map((p, i) => (
                 <img key={p.url} src={p.url} alt={`촬영 사진 ${i + 1}`} />
               ))}
-              {photos.length === 0 && <span>4장 이상 촬영해 주세요</span>}
+              {photos.length === 0 && (
+                <span>
+                  촬영 버튼을 한 번만 누르면 {BURST_INTERVAL}초 간격으로{" "}
+                  {BURST_SHOTS}장을 찍어요
+                </span>
+              )}
             </div>
             <div className="capture-controls">
               <details className="capture-options">
@@ -476,10 +516,9 @@ export const PhotoboothPage = () => {
                               c.width,
                               c.height,
                             );
-                            addBlob(
-                              await canvasBlob(c),
-                              `import-${crypto.randomUUID()}.jpg`,
-                            );
+                            const blob = await canvasBlob(c);
+                            releaseCanvas(c);
+                            addBlob(blob, `import-${crypto.randomUUID()}.jpg`);
                           }
                         } catch {
                           setError(
@@ -496,17 +535,27 @@ export const PhotoboothPage = () => {
                   </button>
                 </div>
               </details>
-              <button
-                className="shutter"
-                aria-label="사진 찍기"
-                disabled={busy || !cameraReady}
-                onClick={() => void shoot()}
-              >
-                <span />
-              </button>
+              {shotNo > 0 ? (
+                <button
+                  className="shutter is-shooting"
+                  aria-label="자동 촬영 중지"
+                  onClick={stopBurst}
+                >
+                  <span />
+                </button>
+              ) : (
+                <button
+                  className="shutter"
+                  aria-label={`${BURST_INTERVAL}초 간격으로 ${BURST_SHOTS}장 자동 촬영 시작`}
+                  disabled={busy || !cameraReady}
+                  onClick={() => void shoot()}
+                >
+                  <span />
+                </button>
+              )}
               <button
                 className="primary"
-                disabled={busy || photos.length < 4}
+                disabled={shotNo > 0 || busy || photos.length < 4}
                 onClick={finish}
               >
                 사진 선택 →

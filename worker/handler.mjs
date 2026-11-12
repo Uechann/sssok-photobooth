@@ -49,7 +49,9 @@ export function createHandler(assets = {}, upstreamFetch = fetch) {
     return new Response(result.body,{status:result.status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
    }
    if (!['GET','HEAD'].includes(request.method)) return jsonError('지원하지 않는 요청입니다.',405);
-   const key = url.pathname==='/' || url.pathname==='/photobooth' ? '/index.html':url.pathname;
+   // 파일 이름에 공백이나 한글이 섞이면 경로가 %-인코딩으로 들어와 자산을 못 찾는다.
+   const decoded = (() => { try { return decodeURIComponent(url.pathname); } catch { return url.pathname; } })();
+   const key = url.pathname==='/' || url.pathname==='/photobooth' ? '/index.html':decoded;
    const asset=assets[key]; if(!asset)return jsonError('페이지를 찾을 수 없습니다.',404);
    const bytes=Uint8Array.from(atob(asset.base64),c=>c.charCodeAt(0));
    return secure(new Response(request.method==='HEAD'?null:bytes,{headers:{'Content-Type':asset.type,'Cache-Control':key==='/index.html'?'no-cache':'public, max-age=31536000, immutable'}}));

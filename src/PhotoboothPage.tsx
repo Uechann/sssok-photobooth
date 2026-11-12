@@ -69,6 +69,8 @@ export const PhotoboothPage = () => {
   const flashTimer = useRef<number | null>(null);
   const [status, setStatus] = useState("");
   const [shareUrl, setShareUrl] = useState("");
+  const [shareCode, setShareCode] = useState("");
+  const [codeCopied, setCodeCopied] = useState(false);
   const shareOrigin = SERVICE_ORIGIN;
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -404,6 +406,8 @@ export const PhotoboothPage = () => {
       setShareUrl(
         new URL(ROUTES.roomInvite(room.current.code), origin.origin).href,
       );
+      setShareCode(room.current.code);
+      setCodeCopied(false);
       setStep("done");
     } catch (e) {
       setError((e as Error).message);
@@ -423,6 +427,8 @@ export const PhotoboothPage = () => {
     setPreview("");
     setError("");
     setShareUrl("");
+    setShareCode("");
+    setCodeCopied(false);
     clearSession();
     room.current = null;
     pending.current = null;
@@ -829,8 +835,29 @@ export const PhotoboothPage = () => {
           <div className="booth-qr">
             <QRCodeSVG value={shareUrl} size={230} marginSize={2} />
           </div>
+          {shareCode && (
+            <div className="booth-code">
+              <span className="booth-code-label">방 코드</span>
+              <strong className="booth-code-value">{shareCode}</strong>
+              <button
+                type="button"
+                className="booth-code-copy"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(shareCode);
+                    setCodeCopied(true);
+                  } catch {
+                    setCodeCopied(false);
+                  }
+                }}
+              >
+                {codeCopied ? "복사됨" : "복사"}
+              </button>
+            </div>
+          )}
           <p>
-            휴대폰 카메라로 QR을 스캔해 주세요.
+            휴대폰 카메라로 QR을 스캔하거나, 쏙 앱 ‘링크·코드로 참여’에 위 방
+            코드를 입력해 주세요.
             <br />
             원본과 네컷을 모두 저장할 수 있어요.
           </p>

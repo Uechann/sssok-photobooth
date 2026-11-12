@@ -21,6 +21,7 @@ import salmonFrame from "./assets/11_salmonbus_frame.png";
 import harudleFrame from "./assets/12_harudle_frame.png";
 import bibbidiFrame from "./assets/14_wedding_frame.png";
 import chongchongFrame from "./assets/15_chongchong_frame.png";
+import chongchong2Frame from "./assets/15b_chongchong2_frame.png";
 import jachwiFrame from "./assets/16_jachwi_frame.png";
 import parkingFrame from "./assets/17_parking_frame.png";
 import mapmoryFrame from "./assets/18_mapmory_frame.png";
@@ -243,6 +244,21 @@ export const frames: Frame[] = [
     template: chongchongFrame,
     color: "#2fb968",
     ink: "#ffffff",
+  },
+  {
+    category: "teams",
+    name: "총총2",
+    template: chongchong2Frame,
+    // 1024x1536 판형이고 칸 크기도 제각각이라 전용 좌표를 쓴다.
+    size: { width: 1024, height: 1536 },
+    slots: [
+      { x: 526, y: 97, w: 429, h: 517 },
+      { x: 519, y: 699, w: 435, h: 402 },
+      { x: 53, y: 358, w: 421, h: 517 },
+      { x: 53, y: 896, w: 421, h: 512 },
+    ],
+    color: "#c2f58c",
+    ink: "#1a4d2e",
   },
   {
     category: "teams",

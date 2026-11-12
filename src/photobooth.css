@@ -1337,3 +1337,271 @@ summary:focus-visible {
     --frame-stage-width: clamp(220px, 46%, 360px);
   }
 }
+
+/* Full-screen subway welcome. Motion is decorative and never moves controls. */
+.booth.booth-welcome {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding: 0;
+  background: #24180f;
+  overflow: hidden;
+  color: #fff;
+}
+.booth-welcome > .booth-header {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: none;
+  height: 80px;
+  padding: max(16px, env(safe-area-inset-top)) 32px 16px;
+  border: 0;
+  background: linear-gradient(#140d09a6, transparent);
+}
+.booth-welcome .booth-logo,
+.booth-welcome .booth-logo span,
+.booth-welcome .booth-badge {
+  color: #fff;
+  text-shadow: 0 1px 8px #0008;
+}
+.booth-welcome .welcome-scene {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 100svh;
+  max-width: none;
+  margin: 0;
+  padding: 96px 24px max(24px, env(safe-area-inset-bottom));
+}
+.booth-welcome .welcome-art {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  border-radius: 0;
+  overflow: hidden;
+  background: #36271e;
+  z-index: -2;
+}
+.booth-welcome .welcome-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 48%;
+  transform: scale(1.035);
+}
+.booth-welcome .welcome-art > span {
+  display: none;
+}
+.booth-welcome .welcome-art::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    #ffdc922b 45%,
+    transparent 55%
+  );
+  pointer-events: none;
+}
+.booth-welcome .welcome-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    #120c0710 0%,
+    transparent 35%,
+    #130b0566 61%,
+    #130b05ed 100%
+  );
+  pointer-events: none;
+}
+.booth-welcome .welcome-copy {
+  width: min(100%, 520px);
+  text-shadow: 0 2px 12px #0006;
+}
+.booth-welcome .welcome-copy .booth-eyebrow {
+  color: #ffe2bd;
+  margin-bottom: 4px;
+}
+.booth-welcome .welcome-copy h1 {
+  color: #fff;
+  font-size: clamp(40px, 6vw, 64px);
+  margin-bottom: 12px;
+}
+.booth-welcome .welcome-copy h1 em {
+  color: #ffb17b;
+}
+.booth-welcome .welcome-copy > p:not(.booth-eyebrow) {
+  color: #fff3e7;
+  margin-bottom: 20px;
+}
+.booth-welcome .welcome-copy > button {
+  min-height: 60px;
+  box-shadow: 0 4px 20px #0002;
+}
+.booth-welcome .welcome-copy > .welcome-demo {
+  color: #fff0df;
+  box-shadow: none;
+}
+.booth-welcome > .booth-error {
+  position: relative;
+  z-index: 4;
+  margin: 84px 24px 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .booth-welcome .welcome-art img {
+    animation: subway-sway 7s ease-in-out infinite;
+  }
+  .booth-welcome .welcome-art::after {
+    animation: subway-light 9s linear infinite;
+  }
+  @keyframes subway-sway {
+    0%,
+    100% {
+      transform: scale(1.035) translate(-0.3%, 0) rotate(-0.12deg);
+    }
+    30% {
+      transform: scale(1.04) translate(0.3%, 0.25%) rotate(0.12deg);
+    }
+    65% {
+      transform: scale(1.035) translate(0.1%, -0.2%) rotate(-0.08deg);
+    }
+  }
+  @keyframes subway-light {
+    from {
+      transform: translateX(-70%);
+      opacity: 0;
+    }
+    25%,
+    65% {
+      opacity: 1;
+    }
+    to {
+      transform: translateX(70%);
+      opacity: 0;
+    }
+  }
+}
+@media (orientation: landscape) {
+  .booth-welcome .welcome-art img {
+    object-position: 50% 65%;
+  }
+  .booth-welcome .welcome-copy {
+    margin-left: auto;
+    margin-right: 5vw;
+    text-align: left;
+  }
+  .booth-welcome .welcome-scene::after {
+    background: linear-gradient(
+      90deg,
+      #130b0510,
+      #130b0533 40%,
+      #130b05d9 100%
+    );
+  }
+}
+@media (max-width: 600px) {
+  .booth-welcome > .booth-header {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .booth-welcome .welcome-scene {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .booth-welcome .welcome-copy > p:not(.booth-eyebrow) {
+    font-size: 14px;
+  }
+}
+/* Individually animated scene layers are rendered to canvas. */
+.booth-welcome .welcome-art::after {
+  display: none;
+}
+.subway-scene {
+  position: absolute;
+  inset: 0;
+}
+.booth-welcome .welcome-art .subway-poster,
+.subway-scene canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 48% 50%;
+  animation: none;
+  transform: none;
+}
+.booth .subway-pause {
+  position: absolute;
+  z-index: 5;
+  right: 24px;
+  top: 90px;
+  min-height: 40px;
+  padding: 8px 12px;
+  color: #fff;
+  background: #170d0a99;
+  border: 1px solid #ffffff40;
+  font-size: 12px;
+  border-radius: 20px;
+}
+@media (orientation: portrait) {
+  .subway-scene canvas,
+  .booth-welcome .welcome-art .subway-poster {
+    object-fit: contain;
+    object-position: 50% 30%;
+  }
+  .booth-welcome .welcome-art {
+    background: radial-gradient(ellipse at 50% 30%, #a65228, #281a10 75%);
+  }
+  .booth-welcome .welcome-scene::after {
+    background: linear-gradient(transparent 45%, #130b0599 70%, #130b05ed);
+  }
+}
+.booth-welcome .subway-scene {
+  z-index: -2;
+  overflow: hidden;
+  background: #392519;
+}
+.booth-welcome .subway-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.booth-welcome .subway-pause {
+  width: auto;
+  text-shadow: none;
+}
+@media (orientation: portrait) {
+  .booth-welcome .subway-scene {
+    background: radial-gradient(ellipse at 50% 30%, #a65228, #281a10 75%);
+  }
+  .booth-welcome .subway-poster {
+    object-fit: contain;
+    object-position: 50% 30%;
+  }
+}
+
+@media (orientation: portrait) {
+  .booth-welcome .subway-scene canvas,
+  .booth-welcome .subway-poster {
+    height: 78%;
+    object-fit: cover;
+    object-position: 48% 50%;
+  }
+  .booth-welcome .subway-scene::after {
+    content: "";
+    position: absolute;
+    inset: 62% 0 0;
+    background: linear-gradient(transparent, #281a10 48%);
+    pointer-events: none;
+  }
+}

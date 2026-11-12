@@ -1,3 +1,4 @@
+import { SubwayScene } from "./SubwayScene";
 import shot1 from "./assets/ssok-shot-01.png";
 import shot2 from "./assets/ssok-shot-02.png";
 import shot3 from "./assets/ssok-shot-03.png";
@@ -399,10 +400,7 @@ export const PhotoboothPage = () => {
       )}
       {step === "welcome" ? (
         <section className="welcome-scene">
-          <div className="welcome-art">
-            <img src={shot1} alt="사진을 나누는 쏙과 친구들" />
-            <span>WOOWACOURSE 8TH · PHOTO BOOTH</span>
-          </div>
+          <SubwayScene />
           <div className="welcome-copy">
             <p className="booth-eyebrow">함께한 오늘을</p>
             <h1>

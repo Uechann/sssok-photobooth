@@ -58,6 +58,7 @@ export const PhotoboothPage = () => {
   const [category, setCategory] = useState<FrameCategory>(frames[0].category);
   const layout = frameLayout(frame);
   const [preview, setPreview] = useState("");
+  const [zoomed, setZoomed] = useState(false);
   const [uploadStarted, setUploadStarted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -128,6 +129,21 @@ export const PhotoboothPage = () => {
       if (url) URL.revokeObjectURL(url);
     };
   }, [selected, frame, photos, step]);
+  // 확대 보기는 Esc로도 닫는다. 미리보기가 사라지면 같이 닫는다.
+  useEffect(() => {
+    if (!zoomed) {
+      return;
+    }
+    if (!preview) {
+      setZoomed(false);
+      return;
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setZoomed(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [zoomed, preview]);
   const start = async () => {
     if (
       !document.fullscreenElement &&
@@ -793,7 +809,15 @@ export const PhotoboothPage = () => {
             </div>
             <aside className="booth-preview">
               {preview && selected.length === 4 ? (
-                <img src={preview} alt="합성된 인생네컷 미리보기" />
+                <button
+                  type="button"
+                  className="booth-preview-zoom"
+                  onClick={() => setZoomed(true)}
+                  aria-label="인생네컷 크게 보기"
+                >
+                  <img src={preview} alt="합성된 인생네컷 미리보기" />
+                  <span>눌러서 크게 보기</span>
+                </button>
               ) : (
                 <p>
                   {selected.length === 4
@@ -862,6 +886,28 @@ export const PhotoboothPage = () => {
             다음 촬영 시작
           </button>
         </section>
+      )}
+      {zoomed && preview && (
+        <div
+          className="booth-zoom"
+          role="dialog"
+          aria-modal="true"
+          aria-label="인생네컷 확대 보기"
+          onClick={() => setZoomed(false)}
+        >
+          <img
+            src={preview}
+            alt="확대한 인생네컷"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            type="button"
+            className="booth-zoom-close"
+            onClick={() => setZoomed(false)}
+          >
+            닫기
+          </button>
+        </div>
       )}
       <footer>쏙 · 데모데이 포토부스</footer>
     </main>
